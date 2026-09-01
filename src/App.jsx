@@ -1,12 +1,16 @@
 import { useCallback, useState } from 'react';
 import { useConfig } from './hooks/useConfig';
 import { generatePage } from './engine/generate';
+import { combineConfig } from './lib/combineConfig';
 import FormPanel from './components/FormPanel';
 import Preview from './components/Preview';
 
 export default function App() {
-  const { config, updateConfig, resetConfig, importConfig, exportConfig, getConfigJson, shareConfig, loadPreset } = useConfig();
+  const { overrides, updateConfig, resetConfig, importConfig, exportConfig, getConfigJson, shareConfig, loadPreset } = useConfig();
+  const [gameData, setGameData] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const config = combineConfig(overrides, gameData);
 
   const handlePrint = useCallback(() => {
     const html = generatePage(config);
@@ -33,6 +37,8 @@ export default function App() {
           shareConfig={shareConfig}
           loadPreset={loadPreset}
           onPrint={handlePrint}
+          gameData={gameData}
+          onGameLoaded={setGameData}
         />
       </div>
 
@@ -84,6 +90,8 @@ export default function App() {
             shareConfig={shareConfig}
             loadPreset={loadPreset}
             onPrint={handlePrint}
+            gameData={gameData}
+            onGameLoaded={setGameData}
           />
         </div>
       </div>

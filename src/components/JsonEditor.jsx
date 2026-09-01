@@ -5,8 +5,11 @@ export default function JsonEditor({ configJson, onApply }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setText(configJson);
-    setError(null);
+    const id = setTimeout(() => {
+      setText(configJson);
+      setError(null);
+    }, 0);
+    return () => clearTimeout(id);
   }, [configJson]);
 
   const handleApply = () => {

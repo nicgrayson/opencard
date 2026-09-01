@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import GameSection from './sections/GameSection';
 import ThemeSection from './sections/ThemeSection';
 import GridSection from './sections/GridSection';
 import CellSection from './sections/CellSection';
@@ -8,7 +9,7 @@ import PrintSection from './sections/PrintSection';
 import JsonEditor from './JsonEditor';
 import PresetPicker from './PresetPicker';
 
-export default function FormPanel({ config, updateConfig, resetConfig, importConfig, exportConfig, getConfigJson, shareConfig, loadPreset, onPrint }) {
+export default function FormPanel({ config, updateConfig, resetConfig, importConfig, exportConfig, getConfigJson, shareConfig, loadPreset, onPrint, gameData, onGameLoaded }) {
   const [mode, setMode] = useState('form'); // 'form' | 'json'
   const [shareToast, setShareToast] = useState(false);
 
@@ -90,6 +91,7 @@ export default function FormPanel({ config, updateConfig, resetConfig, importCon
             <GridSection config={config} updateConfig={updateConfig} />
             <CellSection config={config} updateConfig={updateConfig} />
             <PitchersSection config={config} updateConfig={updateConfig} />
+            <GameSection gameData={gameData} onGameLoaded={onGameLoaded} />
             <PrintSection config={config} updateConfig={updateConfig} />
           </div>
         ) : (

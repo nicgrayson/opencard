@@ -1,8 +1,14 @@
-import { useMemo, useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { generatePage } from '../engine/generate';
 
 export default function Preview({ config }) {
-  const [html, setHtml] = useState('');
+  const [html, setHtml] = useState(() => {
+    try {
+      return generatePage(config);
+    } catch {
+      return '';
+    }
+  });
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -17,18 +23,9 @@ export default function Preview({ config }) {
     return () => clearTimeout(timerRef.current);
   }, [config]);
 
-  // Generate initial HTML synchronously
-  const initialHtml = useMemo(() => {
-    try {
-      return generatePage(config);
-    } catch {
-      return '';
-    }
-  }, []); // only on mount
-
   return (
     <iframe
-      srcDoc={html || initialHtml}
+      srcDoc={html}
       className="w-full h-full border-0"
       title="Scorecard Preview"
       sandbox="allow-same-origin"

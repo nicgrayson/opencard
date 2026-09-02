@@ -5,25 +5,62 @@ import NumberInput from "../shared/NumberInput";
 const ORIENTATIONS = ["landscape", "portrait"];
 
 export default function LayoutSection({ config, updateConfig }) {
-  const updateHeaderField = (index, field, value) => {
-    const fields = [...config.header.fields];
+  const updateHeaderField = (side, index, field, value) => {
+    const fields = [...(config.header[side]?.fields || [])];
     fields[index] = { ...fields[index], [field]: value };
-    updateConfig("header.fields", fields);
+    updateConfig(`header.${side}.fields`, fields);
   };
 
-  const addHeaderField = () => {
-    updateConfig("header.fields", [
-      ...config.header.fields,
+  const addHeaderField = (side) => {
+    updateConfig(`header.${side}.fields`, [
+      ...(config.header[side]?.fields || []),
       { key: "", label: "", width: "15%" },
     ]);
   };
 
-  const removeHeaderField = (index) => {
+  const removeHeaderField = (side, index) => {
     updateConfig(
-      "header.fields",
-      config.header.fields.filter((_, i) => i !== index),
+      `header.${side}.fields`,
+      (config.header[side]?.fields || []).filter((_, i) => i !== index),
     );
   };
+
+  const renderFieldEditor = (side) => (
+    <div className="mt-2 space-y-2">
+      {(config.header[side]?.fields || []).map((f, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <input
+            type="text"
+            value={f.label}
+            placeholder="Label"
+            onChange={(e) => updateHeaderField(side, i, "label", e.target.value)}
+            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+          />
+          <input
+            type="text"
+            value={f.width}
+            placeholder="Width"
+            onChange={(e) => updateHeaderField(side, i, "width", e.target.value)}
+            className="w-14 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+          />
+          <button
+            type="button"
+            onClick={() => removeHeaderField(side, i)}
+            className="text-red-400 hover:text-red-600 text-sm px-1"
+          >
+            &times;
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => addHeaderField(side)}
+        className="text-sm text-blue-500 hover:text-blue-700"
+      >
+        + Add field
+      </button>
+    </div>
+  );
 
   return (
     <SectionHeader title="Layout">
@@ -74,56 +111,33 @@ export default function LayoutSection({ config, updateConfig }) {
           Header
         </h4>
         <Toggle
-          label="Show header"
+          label="Show top header"
           className="mb-2"
           checked={config.header.show}
           onChange={(v) => updateConfig("header.show", v)}
         />
         {config.header.show && config.pages === "both" && (
           <Toggle
-            label="Show on second page"
+            label="Show bottom header"
+            className="mb-2"
             checked={config.header.showOnSecondPage !== false}
             onChange={(v) => updateConfig("header.showOnSecondPage", v)}
           />
         )}
         {config.header.show && (
-          <div className="mt-2 space-y-1">
-            {config.header.fields.map((f, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={f.label}
-                  placeholder="Label"
-                  onChange={(e) =>
-                    updateHeaderField(i, "label", e.target.value)
-                  }
-                  className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-                <input
-                  type="text"
-                  value={f.width}
-                  placeholder="Width"
-                  onChange={(e) =>
-                    updateHeaderField(i, "width", e.target.value)
-                  }
-                  className="w-14 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeHeaderField(i)}
-                  className="text-red-400 hover:text-red-600 text-sm px-1"
-                >
-                  &times;
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addHeaderField}
-              className="text-sm text-blue-500 hover:text-blue-700"
-            >
-              + Add field
-            </button>
+          <div className="mt-2 space-y-3">
+            <div>
+              <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                Top header
+              </h5>
+              {renderFieldEditor("away")}
+            </div>
+            <div>
+              <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                Bottom header
+              </h5>
+              {renderFieldEditor("home")}
+            </div>
           </div>
         )}
       </div>
@@ -160,11 +174,21 @@ export default function LayoutSection({ config, updateConfig }) {
       </div>
       <div>
         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          Fielding
+        </h4>
+        <Toggle
+          label="Show fielding diagram"
+          checked={config.fielding ? config.fielding.show !== false : true}
+          onChange={(v) => updateConfig("fielding.show", v)}
+        />
+      </div>
+      <div>
+        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
           Section Labels
         </h4>
         <div className="space-y-2">
           <label className="flex items-center gap-2">
-            <span className="text-sm text-gray-700 shrink-0">Away</span>
+            <span className="text-sm text-gray-700 shrink-0">Top</span>
             <input
               type="text"
               value={config.sections.away.label}
@@ -175,7 +199,7 @@ export default function LayoutSection({ config, updateConfig }) {
             />
           </label>
           <label className="flex items-center gap-2">
-            <span className="text-sm text-gray-700 shrink-0">Home</span>
+            <span className="text-sm text-gray-700 shrink-0">Bottom</span>
             <input
               type="text"
               value={config.sections.home.label}

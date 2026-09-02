@@ -21,23 +21,23 @@ describe('generatePage', () => {
   it('renders only home when pages=home', () => {
     const config = deepMerge(defaults, { pages: 'home' });
     const html = generatePage(config);
-    expect(html).not.toContain('>Top ');
-    expect(html).toContain('>Bottom ');
+    expect(html).not.toContain('>Top</div>');
+    expect(html).toContain('>Bottom</div>');
     expect(html.match(/class="print-page"/g).length).toBe(1);
   });
 
   it('renders only away when pages=away', () => {
     const config = deepMerge(defaults, { pages: 'away' });
     const html = generatePage(config);
-    expect(html).toContain('>Top ');
-    expect(html).not.toContain('>Bottom ');
+    expect(html).toContain('>Top</div>');
+    expect(html).not.toContain('>Bottom</div>');
     expect(html.match(/class="print-page"/g).length).toBe(1);
   });
 
   it('hides header when header.show is false', () => {
     const config = deepMerge(defaults, { header: { show: false } });
     const html = generatePage(config);
-    expect(html).not.toContain('class="game-header"');
+    expect(html).not.toContain('class="section-header-content"');
   });
 
   it('renders the correct number of innings', () => {
@@ -106,12 +106,13 @@ describe('generatePage', () => {
   it('hides header on second page when showOnSecondPage is false', () => {
     const config = deepMerge(defaults, { header: { showOnSecondPage: false } });
     const html = generatePage(config);
-    // Away page should still have header
+    // First page (away/top) should still have header content
     const pages = html.split('class="print-page"');
-    // First page (away) should have header
-    expect(pages[1]).toContain('class="game-header"');
-    // Second page (home) should not have header
-    expect(pages[2]).not.toContain('class="game-header"');
+    // Away page: section-label + top header fields present
+    expect(pages[1]).toContain('class="section-label"');
+    expect(pages[1]).toContain('class="section-header-content"');
+    // Second page (home/bottom) should not have bottom header fields
+    expect(pages[2]).not.toContain('class="section-header-content"');
   });
 
   it('renders consolidated scoreboard with R/H/E in same table', () => {

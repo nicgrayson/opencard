@@ -112,14 +112,31 @@ function generateAtBatCell(config) {
   return html;
 }
 
-function generateHeader(config) {
-  if (!config.header.show) return "";
-  const fields = config.header.fields;
-  let html = '<div class="game-header">';
+function generateHeader(config, side) {
+  const headerConfig = config.header[side] || config.header || {};
+  const fields = headerConfig.fields || [];
+  const vals = (config.data && config.data.header) || {};
+  const sideVals = (side && vals[side]) || {};
+  const teamName =
+    sideVals.teamName ||
+    (side === "away" ? vals.awayTeam : side === "home" ? vals.homeTeam : "") ||
+    "";
+
+  let html = '<div class="section-header-content">';
+  if (headerConfig.showTeamTitle) {
+    html += `<div class="header-team">${escapeHtml(teamName)}</div>`;
+  }
   for (const field of fields) {
+    const value = field.team
+      ? sideVals[field.key] != null
+        ? sideVals[field.key]
+        : ""
+      : vals[field.key] != null
+        ? vals[field.key]
+        : "";
     html += `<div class="header-field" style="width:${field.width}">
         <label>${escapeHtml(field.label)}</label>
-        <div class="header-input"></div>
+        <div class="header-input">${escapeHtml(value)}</div>
       </div>`;
   }
   html += "</div>";
@@ -242,15 +259,15 @@ function generateHalfInning(config, side) {
   const footerItems = sectionConfig.footer;
 
   const labelParts = label.split(" / ");
-  let labelHtml;
-  if (labelParts.length === 2) {
-    labelHtml = `${escapeHtml(labelParts[0])} <span>/</span> ${escapeHtml(labelParts[1])}`;
-  } else {
-    labelHtml = escapeHtml(label);
-  }
+  const labelHtml = escapeHtml(labelParts[0] || label);
+  const showHeader =
+    config.header.show && (side === "away" || config.header.showOnSecondPage !== false);
 
   let html = '<div class="half-inning">';
-  html += `<div class="section-header">${labelHtml}</div>`;
+  html += '<div class="section-header">';
+  html += `<div class="section-label">${labelHtml}</div>`;
+  if (showHeader) html += generateHeader(config, side);
+  html += '</div>';
   html += '<div class="section-divider"></div>';
   html += '<div class="section-body">';
 
@@ -429,12 +446,17 @@ export function generatePage(config) {
         0 8px 40px rgba(0,0,0,0.06);
     }
 
-    .game-header {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid var(--primary);
+    .header-team {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: var(--primary);
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding-bottom: 2px;
+      margin-right: 8px;
     }
 
     .header-field {
@@ -453,7 +475,7 @@ export function generatePage(config) {
     }
 
     .header-field .header-input {
-      height: 24px;
+      height: 22px;
       border-bottom: 1.5px solid var(--border);
       font-family: var(--font-body);
       font-size: 13px;
@@ -469,20 +491,31 @@ export function generatePage(config) {
     }
 
     .section-header {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 6px;
       display: flex;
-      gap: 6px;
+      align-items: flex-end;
+      gap: 12px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
     }
 
-    .section-header span {
-      font-weight: 400;
-      color: var(--primary-light);
+    .section-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: 3px;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--primary);
+      white-space: nowrap;
+      padding-bottom: 2px;
+    }
+
+    .section-header-content {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
     }
 
     .section-divider {
@@ -910,11 +943,6 @@ export function generatePage(config) {
         margin-bottom: 0;
       }
 
-      .game-header {
-        margin-bottom: 12px;
-        padding-bottom: 10px;
-      }
-
       .section-footer {
         margin-top: 6px;
         gap: 10px;
@@ -935,14 +963,12 @@ export function generatePage(config) {
 
 <div class="scorecard">
 ${config.pages !== 'home' ? `  <div class="print-page">
-${config.header.show ? generateHeader(config) : ""}
 ${generateHalfInning(config, "away")}
     <div class="card-footer">
       ${escapeHtml(config.name)}
     </div>
   </div>` : ''}
 ${config.pages !== 'away' ? `  <div class="print-page">
-${config.header.show && config.header.showOnSecondPage !== false ? generateHeader(config) : ""}
 ${generateHalfInning(config, "home")}
     <div class="card-footer">
       ${escapeHtml(config.name)}

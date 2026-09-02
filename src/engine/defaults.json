@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "author": "",
-
   "theme": {
     "colors": {
       "primary": "#3a9bd5",
@@ -30,7 +29,6 @@
       "statColWidth": 24
     }
   },
-
   "page": {
     "size": "LETTER",
     "orientation": "landscape",
@@ -41,39 +39,105 @@
       "left": 24
     }
   },
-
   "header": {
     "show": true,
     "showOnSecondPage": true,
-    "fields": [
-      { "key": "date", "label": "Date", "width": "15%" },
-      { "key": "start", "label": "Start", "width": "8%" },
-      { "key": "end", "label": "End", "width": "8%" },
-      { "key": "awayTeam", "label": "Away", "width": "20%" },
-      { "key": "homeTeam", "label": "Home", "width": "20%" },
-      { "key": "venue", "label": "Venue", "width": "25%" },
-      { "key": "weather", "label": "Weather", "width": "15%" }
-    ]
+    "away": {
+      "showTeamTitle": true,
+      "fields": [
+        {
+          "key": "awayTeam",
+          "label": "Away",
+          "width": "20%"
+        },
+        {
+          "key": "date",
+          "label": "Date",
+          "width": "15%"
+        },
+        {
+          "key": "start",
+          "label": "Start",
+          "width": "8%"
+        },
+        {
+          "key": "venue",
+          "label": "Venue",
+          "width": "25%"
+        },
+        {
+          "key": "weather",
+          "label": "Weather",
+          "width": "15%"
+        }
+      ]
+    },
+    "home": {
+      "showTeamTitle": true,
+      "fields": [
+        {
+          "key": "homeTeam",
+          "label": "Home",
+          "width": "20%"
+        },
+        {
+          "key": "date",
+          "label": "Date",
+          "width": "15%"
+        },
+        {
+          "key": "end",
+          "label": "End",
+          "width": "8%"
+        },
+        {
+          "key": "venue",
+          "label": "Venue",
+          "width": "25%"
+        },
+        {
+          "key": "weather",
+          "label": "Weather",
+          "width": "15%"
+        }
+      ]
+    }
   },
-
   "grid": {
     "rows": 10,
     "innings": 12,
     "showInningLabels": true,
     "substitutionLines": 0,
     "statColumns": [
-      { "key": "AB", "label": "AB" },
-      { "key": "R", "label": "R" },
-      { "key": "H", "label": "H" },
-      { "key": "RBI", "label": "RBI" }
+      {
+        "key": "AB",
+        "label": "AB"
+      },
+      {
+        "key": "R",
+        "label": "R"
+      },
+      {
+        "key": "H",
+        "label": "H"
+      },
+      {
+        "key": "RBI",
+        "label": "RBI"
+      }
     ]
   },
-
   "cell": {
     "outcomes": {
       "show": true,
       "position": "top",
-      "items": ["1B", "2B", "3B", "HR", "BB"]
+      "items": [
+        "1B",
+        "2B",
+        "3B",
+        "HR",
+        "BB"
+      ]
     },
     "diamond": {
       "show": true,
@@ -88,43 +152,70 @@
       "layout": "vertical"
     }
   },
-
   "pitchers": {
     "rows": 5,
     "stats": [
-      { "key": "IP", "label": "IP" },
-      { "key": "H", "label": "H" },
-      { "key": "R", "label": "R" },
-      { "key": "ER", "label": "ER" },
-      { "key": "BB", "label": "BB" },
-      { "key": "K", "label": "K" }
+      {
+        "key": "IP",
+        "label": "IP"
+      },
+      {
+        "key": "H",
+        "label": "H"
+      },
+      {
+        "key": "R",
+        "label": "R"
+      },
+      {
+        "key": "ER",
+        "label": "ER"
+      },
+      {
+        "key": "BB",
+        "label": "BB"
+      },
+      {
+        "key": "K",
+        "label": "K"
+      }
     ]
   },
-
   "scoreboard": {
     "show": true,
-    "totals": ["R", "H", "E"]
+    "totals": [
+      "R",
+      "H",
+      "E"
+    ]
   },
-
   "notes": {
     "show": true,
     "lines": 5
   },
-
+  "fielding": {
+    "show": false
+  },
   "print": {
     "fitToPage": true
   },
-
   "pages": "both",
-
   "sections": {
     "away": {
-      "label": "Top / Away Team",
-      "footer": ["pitchers", "notes"]
+      "label": "Top",
+      "footer": [
+        "pitchers",
+        "fielding",
+        "notes"
+      ]
     },
     "home": {
-      "label": "Bottom / Home Team",
-      "footer": ["pitchers", "scoreboard"]
+      "label": "Bottom",
+      "footer": [
+        "pitchers",
+        "fielding",
+        "scoreboard"
+      ]
     }
   }
 }

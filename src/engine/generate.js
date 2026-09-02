@@ -143,9 +143,10 @@ function generateHeader(config, side) {
   return html;
 }
 
-function generateBattingGrid(config, tbodyId) {
+function generateBattingGrid(config, tbodyId, lineupData) {
   const { rows, innings, statColumns } = config.grid;
   const atBatHtml = generateAtBatCell(config);
+  const lineup = lineupData || [];
 
   let html = '<div class="grid-wrap"><table class="scoring-grid"><thead><tr>';
   html += '<th class="col-player">Player</th>';
@@ -159,19 +160,28 @@ function generateBattingGrid(config, tbodyId) {
   html += "</tr></thead><tbody>";
 
   for (let r = 0; r < rows; r++) {
+    const player = lineup[r] || null;
     html += "<tr>";
     const subLines = config.grid.substitutionLines || 0;
     let subHtml = '';
     for (let k = 1; k <= subLines; k++) {
       subHtml += `<div class="sub-line" style="top:${(k / (subLines + 1)) * 100}%"></div>`;
     }
-    html += `<td class="cell-player">${subHtml}</td>`;
-    html += `<td class="cell-pos">${subHtml}</td>`;
+    const textTop =
+      subLines > 0 ? ` style="top:${(100 / (2 * (subLines + 1))).toFixed(2)}%"` : "";
+    const nameText = player ? player.name || "" : "";
+    const num = player && player.num != null ? player.num : "";
+    const numPrefix = num !== "" ? `#${num} ` : "";
+    html += `<td class="cell-player">${subHtml}<span class="player-name cell-text"${textTop}>${escapeHtml(numPrefix)}${escapeHtml(nameText)}</span></td>`;
+    html += `<td class="cell-pos">${subHtml}<span class="cell-text"${textTop}>${escapeHtml(player ? player.pos || "" : "")}</span></td>`;
     for (let i = 0; i < innings; i++) {
       html += `<td class="cell-inning">${atBatHtml}</td>`;
     }
-    for (let s = 0; s < statColumns.length; s++) {
-      html += '<td class="cell-stat"></td>';
+    for (const col of statColumns) {
+      const val = player && player.stats && player.stats[col.key] != null && player.stats[col.key] !== ""
+        ? player.stats[col.key]
+        : "";
+      html += `<td class="cell-stat">${subHtml}${escapeHtml(val)}</td>`;
     }
     html += "</tr>";
   }
@@ -180,9 +190,10 @@ function generateBattingGrid(config, tbodyId) {
   return html;
 }
 
-function generatePitcherLog(config) {
+function generatePitcherLog(config, pitchers) {
   const { rows, stats } = config.pitchers;
-  let html = '<div class="sidebar-block">';
+  const data = pitchers || [];
+  let html = '<div class="sidebar-block pitcher-block">';
   html += '<div class="sidebar-title">Pitcher</div>';
   html += '<table class="pitcher-table"><thead><tr>';
   html += "<th>Name</th>";
@@ -191,9 +202,14 @@ function generatePitcherLog(config) {
   }
   html += "</tr></thead><tbody>";
   for (let i = 0; i < rows; i++) {
-    html += "<tr><td></td>";
-    for (let s = 0; s < stats.length; s++) {
-      html += "<td></td>";
+    const p = data[i] || null;
+    const num = p && p.num != null ? `#${p.num} ` : "";
+    html += `<tr><td>${escapeHtml(num + (p ? p.name || "" : ""))}</td>`;
+    for (const stat of stats) {
+      const val = p && p.stats && p.stats[stat.key] != null && p.stats[stat.key] !== ""
+        ? p.stats[stat.key]
+        : "";
+      html += `<td>${escapeHtml(val)}</td>`;
     }
     html += "</tr>";
   }
@@ -204,7 +220,7 @@ function generatePitcherLog(config) {
 function generateNotes(config) {
   if (!config.notes.show) return "";
   const lines = config.notes.lines;
-  let html = '<div class="sidebar-block">';
+  let html = '<div class="sidebar-block notes-block">';
   html += '<div class="sidebar-title">Game Notes</div>';
   html += '<div class="game-notes-area"><div class="game-notes-lines">';
   for (let i = 0; i < lines; i++) {
@@ -218,6 +234,19 @@ function generateScoreboard(config) {
   if (!config.scoreboard.show) return "";
   const innings = config.grid.innings;
   const totals = config.scoreboard.totals;
+  const data = (config.data && config.data.scoreboard) || null;
+  const rows = [
+    { id: "away", name: data ? data.awayName : "" },
+    { id: "home", name: data ? data.homeName : "" },
+  ];
+
+  const cellVal = (teamId, inningIdx) => {
+    if (!data || !data.innings) return "";
+    const inn = data.innings[inningIdx];
+    if (!inn) return "";
+    const v = inn[teamId];
+    return v != null && v !== 0 ? v : "";
+  };
 
   let html = '<div class="scoreboard-block">';
   html += `<div class="scoreboard-header">
@@ -237,13 +266,16 @@ function generateScoreboard(config) {
     html += `<th class="scoreboard-totals">${escapeHtml(t)}</th>`;
   }
   html += "</tr></thead><tbody>";
-  for (let t = 0; t < 2; t++) {
-    html += "<tr><td></td>";
+  for (const row of rows) {
+    html += `<tr><td>${escapeHtml(row.name)}</td>`;
     for (let i = 0; i < innings; i++) {
-      html += "<td></td>";
+      html += `<td>${cellVal(row.id, i)}</td>`;
     }
-    for (let i = 0; i < totals.length; i++) {
-      html += '<td class="scoreboard-totals"></td>';
+    for (const t of totals) {
+      const v = data && data.totals && data.totals[row.id]
+        ? data.totals[row.id][t]
+        : "";
+      html += `<td class="scoreboard-totals">${escapeHtml(v != null && v !== "" ? v : "")}</td>`;
     }
     html += "</tr>";
   }
@@ -253,10 +285,79 @@ function generateScoreboard(config) {
   return html;
 }
 
+const FIELD_META = {
+  C: { x: 160, y: 262 },
+  "1B": { x: 240, y: 208 },
+  "2B": { x: 226, y: 132 },
+  "3B": { x: 80, y: 208 },
+  SS: { x: 94, y: 132 },
+  LF: { x: 58, y: 52 },
+  CF: { x: 160, y: 34 },
+  RF: { x: 262, y: 52 },
+};
+
+const FIELD_NUMBER = {
+  C: "2",
+  "1B": "3",
+  "2B": "4",
+  "3B": "5",
+  SS: "6",
+  LF: "7",
+  CF: "8",
+  RF: "9",
+};
+
+function lastName(full = "") {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : "";
+}
+
+function generateFielding(fielding, teamName) {
+  const byPos = {};
+  for (const f of fielding || []) {
+    if (f && f.pos) byPos[f.pos] = f;
+  }
+
+  const posCell = (pos) => {
+    const f = byPos[pos];
+    const { x, y } = FIELD_META[pos] || {};
+    const writeLine = `<line class="field-write" x1="${x - 26}" y1="${y}" x2="${x + 26}" y2="${y}"/>`;
+    const numText = `<text class="field-num" x="${x}" y="${y + 6}" text-anchor="middle">${FIELD_NUMBER[pos] || ""}</text>`;
+    if (!f) {
+      return `<g class="field-slot">${writeLine}${numText}</g>`;
+    }
+    const name = lastName(f.name || "");
+    const nameText = name
+      ? `<text class="field-pos filled" x="${x}" y="${y - 1}" text-anchor="middle">${escapeHtml(name)}</text>`
+      : "";
+    return `<g class="field-slot">${nameText}${writeLine}${numText}</g>`;
+  };
+
+  return `<div class="sidebar-block fielding-block">
+    <div class="sidebar-title">Fielding${teamName ? ` — ${escapeHtml(teamName)}` : ""}</div>
+    <div class="fielding-wrap">
+      <svg class="fielding" viewBox="0 0 320 300" aria-hidden="true">
+        <g class="field-lines">
+          <path d="M160,232 L226,166 L160,100 L94,166 Z" class="inf-diamond"/>
+          <path d="M160,232 L226,166 L320,72" class="of-line"/>
+          <path d="M160,232 L94,166 L0,72" class="of-line"/>
+        </g>
+        <g class="bases">
+          <rect x="156" y="96" width="8" height="8" class="base"/>
+          <rect x="222" y="162" width="8" height="8" class="base"/>
+          <rect x="90" y="162" width="8" height="8" class="base"/>
+        </g>
+        ${Object.keys(FIELD_META).map(posCell).join("")}
+      </svg>
+    </div>
+  </div>`;
+}
+
 function generateHalfInning(config, side) {
   const sectionConfig = config.sections[side];
   const label = sectionConfig.label;
   const footerItems = sectionConfig.footer;
+  const data = (config.data && config.data.sections && config.data.sections[side]) || {};
 
   const labelParts = label.split(" / ");
   const labelHtml = escapeHtml(labelParts[0] || label);
@@ -271,16 +372,20 @@ function generateHalfInning(config, side) {
   html += '<div class="section-divider"></div>';
   html += '<div class="section-body">';
 
-  html += generateBattingGrid(config, `${side}-batting`);
+  html += generateBattingGrid(config, `${side}-batting`, data.lineup);
 
   html += '<div class="section-footer">';
   for (const item of footerItems) {
     if (item === "pitchers") {
-      html += generatePitcherLog(config);
+      html += generatePitcherLog(config, data.pitchers);
     } else if (item === "notes") {
       html += generateNotes(config);
     } else if (item === "scoreboard") {
       html += generateScoreboard(config);
+    } else if (item === "fielding") {
+      if (config.fielding && config.fielding.show) {
+        html += generateFielding(data.fielding, data.opponentName || "");
+      }
     }
   }
   html += "</div>";
@@ -360,6 +465,7 @@ function calculatePrintZoom(config) {
       if (item === 'pitchers') itemH = 28 + 24 + p.rows * 26;
       if (item === 'notes' && n.show) itemH = 28 + 16 + n.lines * 22;
       if (item === 'scoreboard' && config.scoreboard.show) itemH = 100;
+      if (item === 'fielding' && config.fielding?.show) itemH = 28 + 190;
       maxFooterH = Math.max(maxFooterH, itemH);
     }
     height += maxFooterH;
@@ -531,10 +637,15 @@ export function generatePage(config) {
     }
 
     .section-footer {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      align-items: flex-start;
       gap: 16px;
       margin-top: 10px;
+    }
+
+    .section-footer .pitcher-block {
+      flex: 0 0 auto;
+      width: auto;
     }
 
     .scoring-grid {
@@ -602,6 +713,24 @@ export function generatePage(config) {
       position: relative;
     }
 
+    .scoring-grid .cell-text {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    .scoring-grid td.cell-pos .cell-text {
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
     .scoring-grid td.cell-pos {
       font-family: var(--font-display);
       font-size: 12px;
@@ -633,6 +762,7 @@ export function generatePage(config) {
       font-weight: 600;
       font-size: 13px;
       color: var(--ink);
+      position: relative;
     }
 
     .scoring-grid td.cell-stat:last-child {
@@ -741,6 +871,11 @@ export function generatePage(config) {
       overflow: hidden;
     }
 
+    .fielding-block {
+      flex: 0 0 auto;
+      width: max-content;
+    }
+
     .sidebar-title {
       font-family: var(--font-display);
       font-weight: 700;
@@ -754,8 +889,7 @@ export function generatePage(config) {
 
     .pitcher-table {
       border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
+      table-layout: auto;
     }
 
     .pitcher-table th {
@@ -771,9 +905,14 @@ export function generatePage(config) {
     }
 
     .pitcher-table th:first-child {
-      width: 40%;
+      width: 150px;
       text-align: left;
       padding-left: 8px;
+    }
+
+    .pitcher-table th:not(:first-child),
+    .pitcher-table td:not(:first-child) {
+      width: 26px;
     }
 
     .pitcher-table td {
@@ -823,9 +962,14 @@ export function generatePage(config) {
     }
 
     .scoreboard-block {
+      flex: 1 1 auto;
       border: 2px solid var(--primary);
       border-radius: 6px;
       overflow: hidden;
+    }
+
+    .section-footer .notes-block {
+      flex: 1 1 auto;
     }
 
     .scoreboard-header {
@@ -898,6 +1042,60 @@ export function generatePage(config) {
       font-weight: 700;
     }
 
+    .fielding-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 6px;
+    }
+
+    .fielding {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+    }
+
+    .fielding .field-lines path {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 1.4;
+    }
+
+    .fielding .field-lines .inf-diamond {
+      stroke: var(--diamond-stroke);
+      stroke-width: 1.2;
+    }
+
+    .fielding .field-lines line {
+      stroke: var(--border);
+      stroke-width: 1.2;
+    }
+
+    .fielding .base {
+      fill: var(--background);
+      stroke: var(--diamond-stroke);
+      stroke-width: 1.2;
+    }
+
+    .field-pos {
+      font-family: var(--font-body);
+      font-size: 17px;
+      fill: var(--ink);
+      font-weight: 500;
+    }
+
+    .field-num {
+      fill: var(--primary-light);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 8px;
+    }
+
+    .fielding .field-write {
+      stroke: var(--border);
+      stroke-width: 1;
+      stroke-dasharray: 4 3;
+    }
+
     .card-footer {
       margin-top: 12px;
       text-align: right;
@@ -963,13 +1161,13 @@ export function generatePage(config) {
 
 <div class="scorecard">
 ${config.pages !== 'home' ? `  <div class="print-page">
-${generateHalfInning(config, "away")}
+ ${generateHalfInning(config, "away")}
     <div class="card-footer">
       ${escapeHtml(config.name)}
     </div>
   </div>` : ''}
 ${config.pages !== 'away' ? `  <div class="print-page">
-${generateHalfInning(config, "home")}
+ ${generateHalfInning(config, "home")}
     <div class="card-footer">
       ${escapeHtml(config.name)}
     </div>

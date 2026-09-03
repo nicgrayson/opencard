@@ -30,6 +30,14 @@ function headerFields(game) {
   const weather = [w.condition, w.temp != null ? `${w.temp}°` : '']
     .filter(Boolean)
     .join(' · ');
+  const ump = {};
+  for (const u of game.umpires || []) {
+    const name = u.name || '';
+    if (u.type === 'Home Plate') ump.umpHP = name;
+    else if (u.type === 'First Base') ump.ump1B = name;
+    else if (u.type === 'Second Base') ump.ump2B = name;
+    else if (u.type === 'Third Base') ump.ump3B = name;
+  }
   return {
     date: game.officialDate || '',
     start: game.startTime || '',
@@ -38,6 +46,8 @@ function headerFields(game) {
     homeTeam: game.home ? game.home.name || game.home.abbreviation : '',
     venue: game.venue || '',
     weather,
+    attendance: game.attendance != null ? String(game.attendance) : '',
+    ...ump,
   };
 }
 

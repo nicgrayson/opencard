@@ -117,8 +117,8 @@ const presets = [
     },
   },
   {
-    name: 'Broadcast',
-    description: 'Scoreboard style with team header details',
+    name: 'Numbers',
+    description: 'Numbers Game #22 style with team header details',
     overrides: {
       theme: {
         colors: {
@@ -157,23 +157,26 @@ const presets = [
         away: {
           showTeamTitle: true,
           fields: [
-            { key: 'date', label: 'Date', width: '13%' },
-            { key: 'start', label: 'First Pitch', width: '12%' },
-            { key: 'venue', label: 'Venue', width: '18%' },
-            { key: 'manager', label: 'Manager', width: '17%', team: true },
-            { key: 'uniform', label: 'Uniform', width: '19%', team: true },
-            { key: 'cap', label: 'Cap', width: '19%', team: true },
+            { key: 'manager', label: 'Manager', width: '13%' },
+            { key: 'uniform', label: 'Uniforms', width: '13%' },
+            { key: 'umpHP', label: 'Umpire HP', width: '11%' },
+            { key: 'ump1B', label: 'Umpire 1B', width: '11%' },
+            { key: 'ump2B', label: 'Umpire 2B', width: '11%' },
+            { key: 'ump3B', label: 'Umpire 3B', width: '11%' },
+            { key: 'howWatched', label: 'How Watched', width: '15%' },
+            { key: 'start', label: 'First Pitch', width: '15%' },
           ],
         },
         home: {
           showTeamTitle: true,
           fields: [
-            { key: 'date', label: 'Date', width: '13%' },
-            { key: 'end', label: 'Last Out', width: '12%' },
-            { key: 'venue', label: 'Venue', width: '18%' },
-            { key: 'manager', label: 'Manager', width: '17%', team: true },
-            { key: 'uniform', label: 'Uniform', width: '19%', team: true },
-            { key: 'cap', label: 'Cap', width: '19%', team: true },
+            { key: 'manager', label: 'Manager', width: '14%' },
+            { key: 'uniform', label: 'Uniforms', width: '14%' },
+            { key: 'venue', label: 'Venue', width: '20%' },
+            { key: 'attendance', label: 'Attendance', width: '14%' },
+            { key: 'date', label: 'Date', width: '14%' },
+            { key: 'weather', label: 'Weather', width: '12%' },
+            { key: 'end', label: 'Final Out', width: '12%' },
           ],
         },
       },
@@ -181,7 +184,7 @@ const presets = [
         rows: 9,
         innings: 10,
         showInningLabels: true,
-        substitutionLines: 3,
+        substitutionLines: 2,
         statColumns: [
           { key: 'AB', label: 'AB' },
           { key: 'R', label: 'R' },

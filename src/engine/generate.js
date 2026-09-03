@@ -683,6 +683,7 @@ export function generatePage(config) {
       padding: 6px 2px;
       text-align: center;
       border-bottom: 2px solid var(--primary);
+      border-top: 2px solid var(--primary);
     }
 
     .scoring-grid th.col-player {

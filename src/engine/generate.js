@@ -1104,10 +1104,10 @@ export function generatePage(config) {
     }
 
     .field-num {
-      fill: var(--primary-light);
+      fill: var(--primary);
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 8px;
+      font-size: 12px;
     }
 
     .fielding .field-write {

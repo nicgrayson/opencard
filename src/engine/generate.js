@@ -112,6 +112,16 @@ function generateAtBatCell(config) {
   return html;
 }
 
+function headerValue(field, vals, sideVals) {
+  return field.team
+    ? sideVals[field.key] != null
+      ? sideVals[field.key]
+      : ""
+    : vals[field.key] != null
+      ? vals[field.key]
+      : "";
+}
+
 function generateHeader(config, side) {
   const headerConfig = config.header[side] || config.header || {};
   const fields = headerConfig.fields || [];
@@ -127,16 +137,11 @@ function generateHeader(config, side) {
     html += `<div class="header-team">${escapeHtml(teamName)}</div>`;
   }
   for (const field of fields) {
-    const value = field.team
-      ? sideVals[field.key] != null
-        ? sideVals[field.key]
-        : ""
-      : vals[field.key] != null
-        ? vals[field.key]
-        : "";
+    const value = headerValue(field, vals, sideVals);
+
     html += `<div class="header-field" style="width:${field.width}">
         <label>${escapeHtml(field.label)}</label>
-        <div class="header-input">${escapeHtml(value)}</div>
+        <div class="header-line"><span class="header-value">${escapeHtml(value)}</span></div>
       </div>`;
   }
   html += "</div>";
@@ -562,7 +567,7 @@ export function generatePage(config) {
       text-transform: uppercase;
       white-space: nowrap;
       padding-bottom: 2px;
-      margin-right: 8px;
+      min-width: 140px;
     }
 
     .header-field {
@@ -580,12 +585,18 @@ export function generatePage(config) {
       color: var(--primary);
     }
 
-    .header-field .header-input {
+    .header-field .header-line {
       height: 22px;
       border-bottom: 1.5px solid var(--border);
       font-family: var(--font-body);
       font-size: 13px;
       color: var(--ink);
+      line-height: 22px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .half-inning {

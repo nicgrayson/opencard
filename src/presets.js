@@ -200,6 +200,7 @@ const presets = [
       pitchers: {
         rows: 7,
         stats: [
+          { key: 'R/L', label: 'R/L' },
           { key: 'IP', label: 'IP' },
           { key: 'H', label: 'H' },
           { key: 'R', label: 'R' },

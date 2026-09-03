@@ -30,10 +30,10 @@ const game = {
       { id: 2, name: 'Brandon Nimmo', pos: 'CF', num: '9', battingOrder: 200, AB: 3, R: 0, H: 1, RBI: 0 },
     ],
     pitchers: [
-      { id: 1, name: 'Sean Manaea', num: '59', IP: '5.1', H: 3, R: 1, ER: 1, BB: 2, K: 6, started: true },
+      { id: 1, name: 'Sean Manaea', num: '59', 'R/L': 'L', IP: '5.1', H: 3, R: 1, ER: 1, BB: 2, K: 6, started: true },
       { id: 2, name: 'Edwin Diaz', num: '39', IP: '1.0', H: 0, R: 0, ER: 0, BB: 0, K: 2, started: false },
     ],
-    starter: { name: 'Sean Manaea', num: '59' },
+    starter: { name: 'Sean Manaea', num: '59', 'R/L': 'L' },
     fielders: [
       { pos: 'C', name: 'Francisco Alvarez', num: '4' }, { pos: '1B', name: 'Pete Alonso', num: '20' },
       null, null, { pos: 'SS', name: 'Francisco Lindor', num: '12' },
@@ -70,6 +70,7 @@ describe('MLB game data integration', () => {
     // Away page lists the opponent's (home) pitchers, since home field while away bats
     expect(data.sections.away.pitchers[0].name).toBe('Zack Wheeler');
     expect(data.sections.home.pitchers[0].name).toBe('Sean Manaea');
+    expect(data.sections.home.pitchers[0].stats['R/L']).toBe('L');
     expect(data.sections.away.fielding.some((f) => f.pos === 'C')).toBe(true);
     expect(data.sections.away.fielding.some((f) => f.pos === 'P')).toBe(false);
     expect(data.footers.away).toContain('fielding');

@@ -156,6 +156,10 @@
     "rows": 5,
     "stats": [
       {
+        "key": "R/L",
+        "label": "R/L"
+      },
+      {
         "key": "IP",
         "label": "IP"
       },

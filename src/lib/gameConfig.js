@@ -13,7 +13,9 @@ function pitcherEntries(pitchers) {
   return (pitchers || []).map((p) => ({
     name: p.name || '',
     num: p.num != null ? p.num : '',
-    stats: {},
+    stats: {
+      'R/L': p['R/L'] != null ? p['R/L'] : '',
+    },
   }));
 }
 

@@ -76,7 +76,7 @@ const FIELDING = new Set(['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'])
  * @param {object} side - boxscore.teams.away or boxscore.teams.home
  * @param {'away'|'home'} tag
  */
-export function parseSide(side, tag, starterId) {
+export function parseSide(side, tag, starterId, playerInfo) {
   const players = Object.entries(side.players ?? {})
   const lineup = []
   const pitchers = []
@@ -125,10 +125,12 @@ export function parseSide(side, tag, starterId) {
 
     if (pos === 'P') {
       const pg = stats.pitching || {}
+      const info = playerInfo ? playerInfo.get(String(id).replace(/^ID/, '')) : null
       pitchers.push({
         id,
         name,
         num,
+        'R/L': info && info.pitchHand && info.pitchHand.code ? info.pitchHand.code : '',
         IP: pg.inningsPitched ?? '',
         H: pg.hits ?? '',
         R: pg.runs ?? '',
@@ -196,8 +198,14 @@ export function buildGame(data) {
   const box = data.liveData?.boxscore
   if (!box) return null
 
-  const away = parseSide(box.teams.away, 'away', gd.probablePitchers?.away?.id)
-  const home = parseSide(box.teams.home, 'home', gd.probablePitchers?.home?.id)
+  const playerInfo = new Map(
+    Object.entries(gd.players ?? {}).map(([id, p]) => [
+      String(id).replace(/^ID/, ''),
+      p,
+    ]),
+  )
+  const away = parseSide(box.teams.away, 'away', gd.probablePitchers?.away?.id, playerInfo)
+  const home = parseSide(box.teams.home, 'home', gd.probablePitchers?.home?.id, playerInfo)
 
   const weather = gd.weather ?? {}
   const venue = gd.venue ?? {}

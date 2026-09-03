@@ -544,6 +544,8 @@ export function generatePage(config) {
       justify-content: center;
       padding: 40px 20px;
       min-width: fit-content;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .scorecard {
@@ -1165,11 +1167,6 @@ export function generatePage(config) {
 
       .card-footer {
         margin-top: 8px;
-      }
-
-      .diamond-wrap svg rect {
-        fill: white;
-        stroke: #888;
       }
     }
   </style>

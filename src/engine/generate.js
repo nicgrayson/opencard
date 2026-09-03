@@ -64,6 +64,7 @@ function generateCssVars(config) {
       --row-height: ${s.rowHeight}px;
       --player-col: ${s.playerColWidth}px;
       --pos-col: ${s.posColWidth}px;
+      --bat-col: ${s.batColWidth || 18}px;
       --stat-col: ${s.statColWidth}px;
       --diamond-max: ${config.cell.diamond.maxSize}px;
       --margin-top: ${(config.page.margins && config.page.margins.top != null) ? config.page.margins.top : 29}px;
@@ -154,6 +155,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   const lineup = lineupData || [];
 
   let html = '<div class="grid-wrap"><table class="scoring-grid"><thead><tr>';
+  html += '<th class="col-bat">#</th>';
   html += '<th class="col-player">Player</th>';
   html += '<th class="col-pos">Pos</th>';
   for (let i = 1; i <= innings; i++) {
@@ -177,6 +179,11 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     const nameText = player ? player.name || "" : "";
     const num = player && player.num != null ? player.num : "";
     const numPrefix = num !== "" ? `#${num} ` : "";
+    if (r < 9) {
+      html += `<td class="cell-bat cell-text">${r + 1}</td>`;
+    } else {
+      html += `<td class="cell-bat"></td>`;
+    }
     html += `<td class="cell-player">${subHtml}<span class="player-name cell-text"${textTop}>${escapeHtml(numPrefix)}${escapeHtml(nameText)}</span></td>`;
     html += `<td class="cell-pos">${subHtml}<span class="cell-text"${textTop}>${escapeHtml(player ? player.pos || "" : "")}</span></td>`;
     for (let i = 0; i < innings; i++) {
@@ -486,7 +493,7 @@ function calculatePrintZoom(config) {
     maxPageH = Math.max(maxPageH, height);
   }
 
-  const width = s.playerColWidth + s.posColWidth
+  const width = s.playerColWidth + s.posColWidth + (s.batColWidth || 0)
     + g.innings * s.inningCellWidth
     + g.statColumns.length * s.statColWidth
     + 40;
@@ -692,6 +699,10 @@ export function generatePage(config) {
       padding-left: 4px;
     }
 
+    .scoring-grid th.col-bat {
+      width: var(--bat-col);
+    }
+
     .scoring-grid th.col-pos {
       width: var(--pos-col);
     }
@@ -746,6 +757,20 @@ export function generatePage(config) {
     }
 
     .scoring-grid td.cell-pos .cell-text {
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .scoring-grid td.cell-bat {
+      color: var(--primary);
+      font-weight: 700;
+      border-right: 1px solid var(--border-light);
+      position: relative;
+    }
+
+    .scoring-grid td.cell-bat .cell-text,
+    .scoring-grid td.cell-bat {
       left: 0;
       right: 0;
       text-align: center;

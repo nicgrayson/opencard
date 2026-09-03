@@ -90,6 +90,14 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="sub-line"');
   });
 
+  it('renders lineup numbers 1-9 on batters', () => {
+    const html = generatePage(defaults);
+    expect(html).toContain('<th class="col-bat">#</th>');
+    for (let n = 1; n <= 9; n++) {
+      expect(html).toContain(`<td class="cell-bat cell-text">${n}</td>`);
+    }
+  });
+
   it('hides inning labels when showInningLabels is false', () => {
     const config = deepMerge(defaults, { grid: { showInningLabels: false, innings: 9 } });
     const html = generatePage(config);

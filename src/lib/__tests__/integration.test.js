@@ -55,7 +55,7 @@ const game = {
       { pos: 'C', name: 'J.T. Realmuto', num: '10' }, { pos: '1B', name: 'Bryce Harper', num: '28' },
       { pos: '2B', name: 'Bryson Stott', num: '5' }, { pos: '3B', name: 'Alec Bohm', num: '28' },
       { pos: 'SS', name: 'Trea Turner', num: '7' }, { pos: 'LF', name: 'Brandon Marsh', num: '16' },
-      { pos: 'CF', name: 'Johan Rojas', num: '18' }, { pos: 'RF', name: 'Nick Castellanos', num: '8' },
+      { pos: 'CF', name: 'Michael Harris II', num: '18' }, { pos: 'RF', name: 'Nick Castellanos', num: '8' },
     ],
   },
 };
@@ -73,6 +73,7 @@ describe('MLB game data integration', () => {
     expect(data.sections.away.fielding.some((f) => f.pos === 'C')).toBe(true);
     expect(data.sections.away.fielding.some((f) => f.pos === 'P')).toBe(false);
     expect(data.footers.away).toContain('fielding');
+    expect(data.header.umpHP).toBe('Joe West');
     expect(data.footers.home).toContain('fielding');
   });
 
@@ -91,6 +92,14 @@ describe('MLB game data integration', () => {
     // stats and scoreboard numbers are never auto-filled
     expect(html).not.toMatch(/cell-stat">[0-9]+</);
     expect(html).not.toMatch(/scoreboard-totals">[0-9]+</);
+  });
+
+  it('uses the family name (dropping roman-numeral suffixes) on fielding positions', () => {
+    const gameData = buildGameData(game);
+    const effective = combineConfig({ fielding: { show: true } }, gameData);
+    const html = generatePage(effective);
+    expect(html).not.toMatch(/class="field-pos filled"[^>]*>Harris II</);
+    expect(html).toMatch(/class="field-pos filled"[^>]*>Harris</);
   });
 
   it('preserves user style overrides when merging game data', () => {

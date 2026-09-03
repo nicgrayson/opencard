@@ -92,9 +92,9 @@ export function parseSide(side, tag, starterId) {
     const {
       person: { fullName } = {},
       position = {},
-      battingOrder,
       stats = {},
     } = p
+    const battingOrder = (stats.batting || {}).battingOrder || p.battingOrder
     const pos = position.abbreviation
     const name = fullName
     const num = jersey(p)
@@ -137,13 +137,23 @@ export function parseSide(side, tag, starterId) {
         K: pg.strikeOuts ?? '',
         started: pg.gamesStarted === 1,
       })
-    } else if (pos && FIELDING.has(pos)) {
-      // prefer the starter at each defensive position over any substitute
-      const isStarter = !(p.gameStatus && p.gameStatus.isSubstitute)
-      const cur = byPos.get(pos)
-      if (!cur || (isStarter && !cur.starter)) {
-        byPos.set(pos, { id, name, pos, num, starter: isStarter })
-      }
+    }
+  }
+
+  // Derive the STARTING fielders from `battingOrder` (the 9 starter IDs).
+  // Unlike `gameStatus.isSubstitute`, this reliable identifies genuine
+  // starters even when the feed mislabels some as substitutes (and avoids
+  // picking a late-game replacement who never started).
+  const startIds = (side.battingOrder || []).map((id) => String(id))
+  const byId = new Map(
+    players.map(([id, p]) => [String(id).replace(/^ID/, ''), p]),
+  )
+  for (const id of startIds) {
+    const p = byId.get(id)
+    if (!p) continue
+    const pos = (p.position || {}).abbreviation
+    if (pos && FIELDING.has(pos) && !byPos.has(pos)) {
+      byPos.set(pos, { id, name: p.person?.fullName || '', pos, num: jersey(p) })
     }
   }
 

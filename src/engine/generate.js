@@ -314,7 +314,13 @@ const FIELD_NUMBER = {
 
 function lastName(full = "") {
   const parts = full.trim().split(/\s+/).filter(Boolean);
-  return parts.length ? parts[parts.length - 1] : "";
+  if (!parts.length) return "";
+  const suffixes = new Set(["ii", "iii", "iv", "v", "jr", "jr.", "sr", "sr."]);
+  const last = parts[parts.length - 1];
+  if (parts.length > 1 && suffixes.has(last.toLowerCase())) {
+    return parts[parts.length - 2];
+  }
+  return last;
 }
 
 function generateFielding(fielding, teamName) {

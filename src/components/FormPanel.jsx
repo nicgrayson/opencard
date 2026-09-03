@@ -86,12 +86,12 @@ export default function FormPanel({ config, updateConfig, resetConfig, importCon
         {mode === 'form' ? (
           <div className="p-4">
             <PresetPicker loadPreset={loadPreset} />
+            <GameSection gameData={gameData} onGameLoaded={onGameLoaded} />
             <LayoutSection config={config} updateConfig={updateConfig} />
             <ThemeSection config={config} updateConfig={updateConfig} />
             <GridSection config={config} updateConfig={updateConfig} />
             <CellSection config={config} updateConfig={updateConfig} />
             <PitchersSection config={config} updateConfig={updateConfig} />
-            <GameSection gameData={gameData} onGameLoaded={onGameLoaded} />
             <PrintSection config={config} updateConfig={updateConfig} />
           </div>
         ) : (

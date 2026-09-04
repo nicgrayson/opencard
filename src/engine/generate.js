@@ -134,6 +134,11 @@ function generateHeader(config, side) {
     "";
 
   let html = '<div class="section-header-content">';
+  const logo = (config.header.logo || {});
+  if (logo.show && logo.show !== false) {
+    const size = logo.size || 34;
+    html += `<div class="header-logo" style="width:${size}px;height:${size}px"></div>`;
+  }
   if (headerConfig.showTeamTitle) {
     html += `<div class="header-team">${escapeHtml(teamName)}</div>`;
   }
@@ -598,6 +603,14 @@ export function generatePage(config) {
       white-space: nowrap;
       padding-bottom: 2px;
       min-width: 140px;
+    }
+
+    .header-logo {
+      flex: 0 0 auto;
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      background: var(--background);
+      margin-bottom: 2px;
     }
 
     .header-field {

@@ -43,6 +43,10 @@
   "header": {
     "show": true,
     "showOnSecondPage": true,
+    "logo": {
+      "show": true,
+      "size": 34
+    },
     "away": {
       "showTeamTitle": true,
       "fields": [

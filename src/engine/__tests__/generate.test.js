@@ -110,6 +110,17 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="lob-row"');
   });
 
+  it('renders logo circle in header by default', () => {
+    const html = generatePage(defaults);
+    expect(html).toContain('class="header-logo"');
+  });
+
+  it('hides logo circle when header.logo.show is false', () => {
+    const config = deepMerge(defaults, { header: { logo: { show: false } } });
+    const html = generatePage(config);
+    expect(html).not.toContain('class="header-logo"');
+  });
+
   it('hides inning labels when showInningLabels is false', () => {
     const config = deepMerge(defaults, { grid: { showInningLabels: false, innings: 9 } });
     const html = generatePage(config);

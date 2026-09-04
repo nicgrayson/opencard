@@ -387,7 +387,7 @@ function generateFielding(fielding, teamName) {
   return `<div class="sidebar-block fielding-block">
     <div class="sidebar-title">Fielding${teamName ? ` — ${escapeHtml(teamName)}` : ""}</div>
     <div class="fielding-wrap">
-      <svg class="fielding" viewBox="0 0 320 300" aria-hidden="true">
+      <svg class="fielding" viewBox="0 26 320 250" aria-hidden="true">
         <g class="field-lines">
           <path d="M160,232 L226,166 L160,100 L94,166 Z" class="inf-diamond"/>
           <path d="M160,232 L226,166 L320,72" class="of-line"/>

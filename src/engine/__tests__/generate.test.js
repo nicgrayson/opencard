@@ -90,6 +90,17 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="sub-line"');
   });
 
+  it('renders batting-order numbers 1-9 in a lighter color than names', () => {
+    const html = generatePage(defaults);
+    expect(html).toContain('<th class="col-bat">#</th>');
+    for (let n = 1; n <= 9; n++) {
+      expect(html).toContain(
+        `<td class="cell-bat"><span class="cell-text">${n}</span></td>`,
+      );
+    }
+    expect(html).toMatch(/\.cell-bat\s*\{[\s\S]*?color:\s*var\(--primary-light\);/);
+  });
+
   it('renders blank LOB tracking row by default', () => {
     const html = generatePage(defaults);
     expect(html).toContain('class="lob-row"');

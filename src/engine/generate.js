@@ -64,6 +64,7 @@ function generateCssVars(config) {
       --row-height: ${s.rowHeight}px;
       --player-col: ${s.playerColWidth}px;
       --pos-col: ${s.posColWidth}px;
+      --bat-col: ${s.batColWidth || 18}px;
       --stat-col: ${s.statColWidth}px;
       --diamond-max: ${config.cell.diamond.maxSize}px;
       --margin-top: ${(config.page.margins && config.page.margins.top != null) ? config.page.margins.top : 29}px;
@@ -163,6 +164,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   const lineup = lineupData || [];
 
   let html = '<div class="grid-wrap"><table class="scoring-grid"><thead><tr>';
+  html += '<th class="col-bat">#</th>';
   html += '<th class="col-player">Player</th>';
   html += '<th class="col-pos">Pos</th>';
   for (let i = 1; i <= innings; i++) {
@@ -183,10 +185,13 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     }
     const textTop =
       subLines > 0 ? ` style="top:${(100 / (2 * (subLines + 1))).toFixed(2)}%"` : "";
-    const nameText = player ? player.name || "" : "";
-    const num = player && player.num != null ? player.num : "";
-    const numPrefix = num !== "" ? `#${num} ` : "";
-    html += `<td class="cell-player">${subHtml}<span class="player-name cell-text"${textTop}>${escapeHtml(numPrefix)}${escapeHtml(nameText)}</span></td>`;
+    const nameText = player ? shortName(player.name || "") : "";
+    if (r < 9) {
+      html += `<td class="cell-bat">${subHtml}<span class="cell-text"${textTop}>${r + 1}</span></td>`;
+    } else {
+      html += `<td class="cell-bat"></td>`;
+    }
+    html += `<td class="cell-player">${subHtml}<span class="player-name cell-text"${textTop}>${escapeHtml(nameText)}</span></td>`;
     html += `<td class="cell-pos">${subHtml}<span class="cell-text"${textTop}>${escapeHtml(player ? player.pos || "" : "")}</span></td>`;
     for (let i = 0; i < innings; i++) {
       html += `<td class="cell-inning">${atBatHtml}</td>`;
@@ -202,6 +207,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
 
   if (config.grid.lobRow && config.grid.lobRow.show !== false) {
     html += "<tr class=\"lob-row\">";
+    html += '<td class="cell-bat"></td>';
     html += '<td class="cell-player"></td>';
     html += '<td class="cell-pos"></td>';
     for (let i = 0; i < innings; i++) {
@@ -341,6 +347,17 @@ function lastName(full = "") {
   const last = parts[parts.length - 1];
   if (parts.length > 1 && suffixes.has(last.toLowerCase())) {
     return parts[parts.length - 2];
+  }
+  return last;
+}
+
+function shortName(full = "") {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "";
+  const first = parts[0];
+  const last = lastName(full);
+  if (parts.length > 1) {
+    return `${first[0].toUpperCase()}. ${last}`;
   }
   return last;
 }
@@ -508,7 +525,7 @@ function calculatePrintZoom(config) {
     maxPageH = Math.max(maxPageH, height);
   }
 
-  const width = s.playerColWidth + s.posColWidth
+  const width = s.playerColWidth + s.posColWidth + (s.batColWidth || 0)
     + g.innings * s.inningCellWidth
     + g.statColumns.length * s.statColWidth
     + 40;
@@ -719,6 +736,10 @@ export function generatePage(config) {
       width: var(--pos-col);
     }
 
+    .scoring-grid th.col-bat {
+      width: var(--bat-col);
+    }
+
     .scoring-grid th.col-inning {
       width: var(--cell-size);
     }
@@ -772,6 +793,19 @@ export function generatePage(config) {
       left: 0;
       right: 0;
       text-align: center;
+    }
+
+    .scoring-grid td.cell-bat {
+      position: relative;
+      color: var(--primary-light);
+      border-right: 1px solid var(--border-light);
+    }
+
+    .scoring-grid td.cell-bat .cell-text {
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: var(--primary-light);
     }
 
     .scoring-grid tr.lob-row td {

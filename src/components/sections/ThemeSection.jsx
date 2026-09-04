@@ -52,6 +52,7 @@ const SIZING_FIELDS = [
   { key: 'rowHeight', label: 'Row Height', min: 30, max: 120 },
   { key: 'playerColWidth', label: 'Player Col', min: 60, max: 200 },
   { key: 'posColWidth', label: 'Pos Col', min: 16, max: 60 },
+  { key: 'batColWidth', label: 'Bat # Col', min: 12, max: 40 },
   { key: 'statColWidth', label: 'Stat Col', min: 16, max: 60 },
 ];
 

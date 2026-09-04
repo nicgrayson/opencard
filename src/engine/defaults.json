@@ -26,6 +26,7 @@
       "rowHeight": 66,
       "playerColWidth": 110,
       "posColWidth": 28,
+      "batColWidth": 18,
       "statColWidth": 24
     }
   },

@@ -84,8 +84,8 @@ describe('MLB game data integration', () => {
     const html = generatePage(effective);
 
     expect(html).toContain('NYM @ PHI');
-    expect(html).toContain('Francisco Lindor');
-    expect(html).toContain('#12 Francisco Lindor');
+    expect(html).toContain('F. Lindor');
+    expect(html).not.toContain('#12 ');
     expect(html).toContain('Zack Wheeler'); // home pitchers on away page
     expect(html).toContain('Sean Manaea');
     expect(html.match(/sidebar-block fielding-block/g).length).toBe(2);
@@ -108,14 +108,14 @@ describe('MLB game data integration', () => {
     const effective = combineConfig({ theme: { colors: { primary: '#ff0000' } } }, gameData);
     const html = generatePage(effective);
     expect(html).toContain('--primary: #ff0000');
-    expect(html).toContain('Francisco Lindor');
+    expect(html).toContain('F. Lindor');
   });
 
   it('returns a blank config when no game data is present', () => {
     const effective = combineConfig({ theme: { colors: { primary: '#00ff00' } }, fielding: { show: true } }, null);
     const html = generatePage(effective);
     expect(html).toContain('--primary: #00ff00');
-    expect(html).not.toContain('Francisco Lindor');
+    expect(html).not.toContain('F. Lindor');
     // blank scorecard still shows the fielding diagram with write-in lines
     expect(html).toContain('sidebar-block fielding-block');
     expect(html).toContain('field-write');

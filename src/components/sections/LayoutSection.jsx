@@ -1,6 +1,6 @@
 import SectionHeader from "../shared/SectionHeader";
 import Toggle from "../shared/Toggle";
-import NumberInput from "../shared/NumberInput";
+
 
 const ORIENTATIONS = ["landscape", "portrait"];
 
@@ -181,15 +181,6 @@ export default function LayoutSection({ config, updateConfig }) {
             checked={config.notes.show}
             onChange={(v) => updateConfig("notes.show", v)}
           />
-          {config.notes.show && (
-            <NumberInput
-              label="Lines"
-              value={config.notes.lines}
-              min={1}
-              max={15}
-              onChange={(v) => updateConfig("notes.lines", v)}
-            />
-          )}
         </div>
       </div>
       <div>

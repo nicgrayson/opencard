@@ -13,9 +13,9 @@
       "background": "#fdfdfd",
       "pageBackground": "#e8e0d6",
       "border": "#a5d4e8",
-      "borderLight": "#cde6f2",
+      "borderLight": "#a5d4e8",
       "diamondFill": "#e2f1f8",
-      "diamondStroke": "#a5d4e8"
+      "diamondStroke": "#cde6f2"
     },
     "fonts": {
       "display": "Barlow Condensed",

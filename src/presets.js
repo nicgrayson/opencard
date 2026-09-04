@@ -219,7 +219,7 @@ const presets = [
       },
       notes: {
         show: true,
-        lines: 7,
+        lines: 10,
       },
       fielding: {
         show: true,
@@ -235,7 +235,7 @@ const presets = [
         },
         home: {
           label: 'Bottom',
-          footer: ['pitchers', 'fielding', 'scoreboard'],
+          footer: ['pitchers', 'fielding', 'scoreboard', 'notes'],
         },
       },
     },

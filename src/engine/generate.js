@@ -426,13 +426,22 @@ function generateHalfInning(config, side) {
   html += generateBattingGrid(config, `${side}-batting`, data.lineup);
 
   html += '<div class="section-footer">';
-  for (const item of footerItems) {
+  for (let i = 0; i < footerItems.length; i++) {
+    const item = footerItems[i];
     if (item === "pitchers") {
       html += generatePitcherLog(config, data.pitchers);
     } else if (item === "notes") {
       html += generateNotes(config);
     } else if (item === "scoreboard") {
-      html += generateScoreboard(config);
+      if (footerItems[i + 1] === "notes") {
+        html += '<div class="footer-stack">';
+        html += generateScoreboard(config);
+        html += generateNotes(config);
+        html += "</div>";
+        i++;
+      } else {
+        html += generateScoreboard(config);
+      }
     } else if (item === "fielding") {
       if (config.fielding && config.fielding.show) {
         html += generateFielding(data.fielding, data.opponentName || "");
@@ -706,6 +715,26 @@ export function generatePage(config) {
     .section-footer .pitcher-block {
       flex: 0 0 auto;
       width: auto;
+    }
+
+    .section-footer .fielding-block {
+      align-self: stretch;
+    }
+
+    .footer-stack {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .footer-stack .scoreboard-block {
+      flex: 0 0 auto;
+    }
+
+    .footer-stack .notes-block {
+      flex: 1 1 auto;
     }
 
     .scoring-grid {
@@ -1042,16 +1071,19 @@ export function generatePage(config) {
     .game-notes-area {
       padding: 8px 10px;
       min-height: 80px;
+      flex: 1 1 auto;
+      display: flex;
     }
 
     .game-notes-lines {
       display: flex;
+      flex: 1 1 auto;
       flex-direction: column;
       gap: 0;
     }
 
     .note-line {
-      height: 22px;
+      flex: 1 1 auto;
       border-bottom: 1px solid var(--border-light);
     }
 
@@ -1068,6 +1100,8 @@ export function generatePage(config) {
 
     .section-footer .notes-block {
       flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
     }
 
     .scoreboard-header {

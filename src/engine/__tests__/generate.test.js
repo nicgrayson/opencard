@@ -197,6 +197,24 @@ describe('generatePage', () => {
     expect(html).toContain('class="scoreboard-totals"');
   });
 
+  it('stacks scoreboard and notes vertically when both are in the footer', () => {
+    const config = deepMerge(defaults, {
+      scoreboard: { show: true },
+      notes: { show: true, lines: 5 },
+      sections: {
+        home: { footer: ['pitchers', 'fielding', 'scoreboard', 'notes'] },
+      },
+    });
+    const html = generatePage(config);
+    expect(html).toContain('<div class="footer-stack">');
+    const stackStart = html.indexOf('<div class="footer-stack">');
+    const scoreboardIdx = html.indexOf('class="scoreboard-block"', stackStart);
+    const notesIdx = html.indexOf('notes-block', stackStart);
+    expect(scoreboardIdx).toBeGreaterThan(-1);
+    expect(notesIdx).toBeGreaterThan(-1);
+    expect(scoreboardIdx).toBeLessThan(notesIdx);
+  });
+
   it('applies custom colors to CSS variables', () => {
     const config = deepMerge(defaults, {
       theme: { colors: { primary: '#ff0000' } },

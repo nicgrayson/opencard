@@ -716,6 +716,7 @@ export function generatePage(config) {
     .section-footer .pitcher-block {
       flex: 0 0 auto;
       width: auto;
+      align-self: flex-start;
     }
 
     .section-footer .fielding-block {

@@ -90,10 +90,10 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="sub-line"');
   });
 
-  it('renders LOB tracking row by default', () => {
+  it('renders blank LOB tracking row by default', () => {
     const html = generatePage(defaults);
     expect(html).toContain('class="lob-row"');
-    expect(html).toContain('LOB');
+    expect(html).not.toContain('lob-label');
   });
 
   it('hides LOB row when lobRow.show is false', () => {

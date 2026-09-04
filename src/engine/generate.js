@@ -201,9 +201,8 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   }
 
   if (config.grid.lobRow && config.grid.lobRow.show !== false) {
-    const label = (config.grid.lobRow.label || "LOB");
     html += "<tr class=\"lob-row\">";
-    html += `<td class="cell-player lob-label"><span class="cell-text">${escapeHtml(label)}</span></td>`;
+    html += '<td class="cell-player"></td>';
     html += '<td class="cell-pos"></td>';
     for (let i = 0; i < innings; i++) {
       html += '<td class="cell-inning lob-cell"></td>';
@@ -776,20 +775,8 @@ export function generatePage(config) {
     }
 
     .scoring-grid tr.lob-row td {
-      height: calc(var(--row-height) * 0.7);
+      height: calc(var(--row-height) * 0.35);
       border-top: 1px solid var(--border);
-    }
-
-    .scoring-grid tr.lob-row td.lob-label {
-      position: relative;
-      text-align: left;
-      padding-left: 4px;
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--primary);
     }
 
     .scoring-grid tr.lob-row td.lob-cell {

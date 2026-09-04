@@ -176,9 +176,10 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   }
   html += "</tr></thead><tbody>";
 
+  const showLob = config.grid.lobRow && config.grid.lobRow.show !== false;
   for (let r = 0; r < rows; r++) {
     const player = lineup[r] || null;
-    html += "<tr>";
+    html += showLob && r === rows - 1 ? '<tr class="lob-prev">' : "<tr>";
     const subLines = config.grid.substitutionLines || 0;
     let subHtml = '';
     for (let k = 1; k <= subLines; k++) {
@@ -206,7 +207,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     html += "</tr>";
   }
 
-  if (config.grid.lobRow && config.grid.lobRow.show !== false) {
+  if (showLob) {
     html += "<tr class=\"lob-row\">";
     html += '<td class="cell-bat"></td>';
     html += '<td class="cell-player"></td>';
@@ -842,7 +843,10 @@ export function generatePage(config) {
 
     .scoring-grid tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
-      border-top: 2px solid var(--primary);
+    }
+
+    .scoring-grid tr.lob-prev td {
+      border-bottom: 2px solid var(--primary);
     }
 
     .scoring-grid tr.lob-row td.cell-bat,

@@ -117,6 +117,7 @@ describe('generatePage', () => {
   it('renders blank LOB tracking row by default', () => {
     const html = generatePage(defaults);
     expect(html).toContain('class="lob-row"');
+    expect(html).toContain('class="lob-prev"');
     expect(html).not.toContain('lob-label');
   });
 
@@ -124,6 +125,7 @@ describe('generatePage', () => {
     const config = deepMerge(defaults, { grid: { lobRow: { show: false } } });
     const html = generatePage(config);
     expect(html).not.toContain('class="lob-row"');
+    expect(html).not.toContain('class="lob-prev"');
   });
 
   it('does not render logo circle by default', () => {

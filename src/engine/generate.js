@@ -114,13 +114,14 @@ function generateAtBatCell(config) {
 }
 
 function headerValue(field, vals, sideVals) {
-  return field.team
+  const raw = field.team
     ? sideVals[field.key] != null
       ? sideVals[field.key]
       : ""
     : vals[field.key] != null
       ? vals[field.key]
       : "";
+  return field.umpire ? shortName(raw) : raw;
 }
 
 function generateHeader(config, side) {
@@ -810,7 +811,7 @@ export function generatePage(config) {
 
     .scoring-grid tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--primary);
     }
 
     .scoring-grid tr.lob-row td.lob-cell {

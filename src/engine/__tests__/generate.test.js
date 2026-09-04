@@ -90,6 +90,19 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="sub-line"');
   });
 
+  it('formats umpire names as first initial + last name', () => {
+    const config = deepMerge(defaults, {
+      header: {
+        showTeamTitle: false,
+        fields: [{ key: 'umpHP', label: 'Umpire HP', width: '20%', umpire: true }],
+      },
+      data: { header: { umpHP: 'Erich Bacchus' } },
+    });
+    const html = generatePage(config);
+    expect(html).toContain('E. Bacchus');
+    expect(html).not.toContain('Erich Bacchus');
+  });
+
   it('renders batting-order numbers 1-9 in a lighter color than names', () => {
     const html = generatePage(defaults);
     expect(html).toContain('<th class="col-bat">#</th>');

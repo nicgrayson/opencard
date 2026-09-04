@@ -372,7 +372,7 @@ function generateFielding(fielding, teamName) {
     const f = byPos[pos];
     const { x, y } = FIELD_META[pos] || {};
     const writeLine = `<line class="field-write" x1="${x - 26}" y1="${y}" x2="${x + 26}" y2="${y}"/>`;
-    const numText = `<text class="field-num" x="${x}" y="${y + 6}" text-anchor="middle">${FIELD_NUMBER[pos] || ""}</text>`;
+    const numText = `<text class="field-num" x="${x}" y="${y + 13}" text-anchor="middle">${FIELD_NUMBER[pos] || ""}</text>`;
     if (!f) {
       return `<g class="field-slot">${writeLine}${numText}</g>`;
     }

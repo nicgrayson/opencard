@@ -815,8 +815,7 @@ export function generatePage(config) {
     }
 
     .scoring-grid tr.lob-row td.cell-bat,
-    .scoring-grid tr.lob-row td.cell-player,
-    .scoring-grid tr.lob-row td.cell-pos {
+    .scoring-grid tr.lob-row td.cell-player {
       border-right: none;
     }
 

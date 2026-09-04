@@ -157,6 +157,7 @@ const presets = [
       header: {
         show: true,
         showOnSecondPage: true,
+        logo: { show: true },
         away: {
           showTeamTitle: true,
           fields: [

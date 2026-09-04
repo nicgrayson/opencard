@@ -44,7 +44,7 @@
     "show": true,
     "showOnSecondPage": true,
     "logo": {
-      "show": true,
+      "show": false,
       "size": 34
     },
     "away": {

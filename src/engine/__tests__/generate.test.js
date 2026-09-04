@@ -110,15 +110,15 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="lob-row"');
   });
 
-  it('renders logo circle in header by default', () => {
+  it('does not render logo circle by default', () => {
     const html = generatePage(defaults);
-    expect(html).toContain('class="header-logo"');
+    expect(html).not.toContain('class="header-logo"');
   });
 
-  it('hides logo circle when header.logo.show is false', () => {
-    const config = deepMerge(defaults, { header: { logo: { show: false } } });
+  it('renders logo circle when header.logo.show is true', () => {
+    const config = deepMerge(defaults, { header: { logo: { show: true } } });
     const html = generatePage(config);
-    expect(html).not.toContain('class="header-logo"');
+    expect(html).toContain('class="header-logo"');
   });
 
   it('hides inning labels when showInningLabels is false', () => {

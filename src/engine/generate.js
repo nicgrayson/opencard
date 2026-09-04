@@ -602,7 +602,10 @@ export function generatePage(config) {
       text-transform: uppercase;
       white-space: nowrap;
       padding-bottom: 2px;
-      min-width: 140px;
+      min-width: 0;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-logo {

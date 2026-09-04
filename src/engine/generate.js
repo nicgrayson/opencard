@@ -598,7 +598,7 @@ export function generatePage(config) {
 
     .header-team-field {
       flex: 0 0 auto;
-      width: 22%;
+      width: 14%;
       min-width: 0;
     }
 

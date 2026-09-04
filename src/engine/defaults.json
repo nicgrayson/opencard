@@ -47,66 +47,15 @@
       "show": false,
       "size": 34
     },
-    "away": {
-      "showTeamTitle": true,
-      "fields": [
-        {
-          "key": "awayTeam",
-          "label": "Away",
-          "width": "20%"
-        },
-        {
-          "key": "date",
-          "label": "Date",
-          "width": "15%"
-        },
-        {
-          "key": "start",
-          "label": "Start",
-          "width": "8%"
-        },
-        {
-          "key": "venue",
-          "label": "Venue",
-          "width": "25%"
-        },
-        {
-          "key": "weather",
-          "label": "Weather",
-          "width": "15%"
-        }
-      ]
-    },
-    "home": {
-      "showTeamTitle": true,
-      "fields": [
-        {
-          "key": "homeTeam",
-          "label": "Home",
-          "width": "20%"
-        },
-        {
-          "key": "date",
-          "label": "Date",
-          "width": "15%"
-        },
-        {
-          "key": "end",
-          "label": "End",
-          "width": "8%"
-        },
-        {
-          "key": "venue",
-          "label": "Venue",
-          "width": "25%"
-        },
-        {
-          "key": "weather",
-          "label": "Weather",
-          "width": "15%"
-        }
-      ]
-    }
+    "fields": [
+      { "key": "date", "label": "Date", "width": "15%" },
+      { "key": "start", "label": "Start", "width": "8%" },
+      { "key": "end", "label": "End", "width": "8%" },
+      { "key": "awayTeam", "label": "Away", "width": "20%" },
+      { "key": "homeTeam", "label": "Home", "width": "20%" },
+      { "key": "venue", "label": "Venue", "width": "25%" },
+      { "key": "weather", "label": "Weather", "width": "15%" }
+    ]
   },
   "grid": {
     "rows": 10,

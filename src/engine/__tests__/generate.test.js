@@ -146,6 +146,23 @@ describe('generatePage', () => {
     expect(pages[2]).not.toContain('class="section-header-content"');
   });
 
+  it('uses the original shared header fields on both pages', () => {
+    const html = generatePage(defaults);
+    const pages = html.split('class="print-page"');
+    const expected = ['Date', 'Start', 'End', 'Away', 'Home', 'Venue', 'Weather'];
+    const fieldLabels = (page) => {
+      const m = page.match(/class="header-field"[^>]*>\s*<label>([^<]*)<\/label>/g) || [];
+      return m;
+    };
+    for (const p of [pages[1], pages[2]]) {
+      const labels = fieldLabels(p);
+      for (const label of expected) {
+        expect(labels.some((l) => l.includes(`<label>${label}</label>`))).toBe(true);
+      }
+      expect(labels.length).toBe(expected.length);
+    }
+  });
+
   it('renders consolidated scoreboard with R/H/E in same table', () => {
     const html = generatePage(defaults);
     // Should have totals columns in the same table as innings

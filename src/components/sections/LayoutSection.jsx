@@ -5,62 +5,72 @@ import NumberInput from "../shared/NumberInput";
 const ORIENTATIONS = ["landscape", "portrait"];
 
 export default function LayoutSection({ config, updateConfig }) {
-  const updateHeaderField = (side, index, field, value) => {
-    const fields = [...(config.header[side]?.fields || [])];
+  const hasSplitHeaders = !!(config.header.away || config.header.home);
+
+  const updateHeaderField = (source, index, field, value) => {
+    const path = source === "shared" ? "header.fields" : `header.${source}.fields`;
+    const fields = [...(config.header[source === "shared" ? "fields" : source]?.fields || [])];
     fields[index] = { ...fields[index], [field]: value };
-    updateConfig(`header.${side}.fields`, fields);
+    updateConfig(path, fields);
   };
 
-  const addHeaderField = (side) => {
-    updateConfig(`header.${side}.fields`, [
-      ...(config.header[side]?.fields || []),
+  const addHeaderField = (source) => {
+    const path = source === "shared" ? "header.fields" : `header.${source}.fields`;
+    updateConfig(path, [
+      ...(config.header[source === "shared" ? "fields" : source]?.fields || []),
       { key: "", label: "", width: "15%" },
     ]);
   };
 
-  const removeHeaderField = (side, index) => {
+  const removeHeaderField = (source, index) => {
+    const path = source === "shared" ? "header.fields" : `header.${source}.fields`;
     updateConfig(
-      `header.${side}.fields`,
-      (config.header[side]?.fields || []).filter((_, i) => i !== index),
+      path,
+      (config.header[source === "shared" ? "fields" : source]?.fields || []).filter(
+        (_, i) => i !== index,
+      ),
     );
   };
 
-  const renderFieldEditor = (side) => (
-    <div className="mt-2 space-y-2">
-      {(config.header[side]?.fields || []).map((f, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={f.label}
-            placeholder="Label"
-            onChange={(e) => updateHeaderField(side, i, "label", e.target.value)}
-            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
-          />
-          <input
-            type="text"
-            value={f.width}
-            placeholder="Width"
-            onChange={(e) => updateHeaderField(side, i, "width", e.target.value)}
-            className="w-14 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
-          />
-          <button
-            type="button"
-            onClick={() => removeHeaderField(side, i)}
-            className="text-red-400 hover:text-red-600 text-sm px-1"
-          >
-            &times;
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => addHeaderField(side)}
-        className="text-sm text-blue-500 hover:text-blue-700"
-      >
-        + Add field
-      </button>
-    </div>
-  );
+  const renderFieldEditor = (source) => {
+    const fields = config.header[source === "shared" ? "fields" : source]?.fields || [];
+    return (
+      <div className="mt-2 space-y-2">
+        {fields.map((f, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={f.label}
+              placeholder="Label"
+              onChange={(e) => updateHeaderField(source, i, "label", e.target.value)}
+              className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+            />
+            <input
+              type="text"
+              value={f.width}
+              placeholder="Width"
+              onChange={(e) => updateHeaderField(source, i, "width", e.target.value)}
+              className="w-14 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+            />
+            <button
+              type="button"
+              onClick={() => removeHeaderField(source, i)}
+              className="text-red-400 hover:text-red-600 text-sm px-1"
+            >
+              &times;
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => addHeaderField(source)}
+          className="text-sm text-blue-500 hover:text-blue-700"
+        >
+          + Add field
+        </button>
+      </div>
+    );
+  };
 
   return (
     <SectionHeader title="Layout">
@@ -128,16 +138,18 @@ export default function LayoutSection({ config, updateConfig }) {
           <div className="mt-2 space-y-3">
             <div>
               <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-                Top header
+                {hasSplitHeaders ? "Top header" : "Header fields"}
               </h5>
-              {renderFieldEditor("away")}
+              {renderFieldEditor(hasSplitHeaders ? "away" : "shared")}
             </div>
-            <div>
-              <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-                Bottom header
-              </h5>
-              {renderFieldEditor("home")}
-            </div>
+            {hasSplitHeaders && (
+              <div>
+                <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                  Bottom header
+                </h5>
+                {renderFieldEditor("home")}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -98,6 +98,18 @@ describe('generatePage', () => {
     }
   });
 
+  it('renders LOB tracking row by default', () => {
+    const html = generatePage(defaults);
+    expect(html).toContain('class="lob-row"');
+    expect(html).toContain('LOB');
+  });
+
+  it('hides LOB row when lobRow.show is false', () => {
+    const config = deepMerge(defaults, { grid: { lobRow: { show: false } } });
+    const html = generatePage(config);
+    expect(html).not.toContain('class="lob-row"');
+  });
+
   it('hides inning labels when showInningLabels is false', () => {
     const config = deepMerge(defaults, { grid: { showInningLabels: false, innings: 9 } });
     const html = generatePage(config);

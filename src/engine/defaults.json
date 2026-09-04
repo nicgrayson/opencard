@@ -109,6 +109,10 @@
     "innings": 12,
     "showInningLabels": true,
     "substitutionLines": 0,
+    "lobRow": {
+      "show": true,
+      "label": "LOB"
+    },
     "statColumns": [
       {
         "key": "AB",

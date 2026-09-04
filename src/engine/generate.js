@@ -198,6 +198,21 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     html += "</tr>";
   }
 
+  if (config.grid.lobRow && config.grid.lobRow.show !== false) {
+    const label = (config.grid.lobRow.label || "LOB");
+    html += "<tr class=\"lob-row\">";
+    html += '<td class="cell-bat"></td>';
+    html += `<td class="cell-player lob-label"><span class="cell-text">${escapeHtml(label)}</span></td>`;
+    html += '<td class="cell-pos"></td>';
+    for (let i = 0; i < innings; i++) {
+      html += '<td class="cell-inning lob-cell"></td>';
+    }
+    for (let i = 0; i < statColumns.length; i++) {
+      html += '<td class="cell-stat"></td>';
+    }
+    html += "</tr>";
+  }
+
   html += "</tbody></table></div>";
   return html;
 }
@@ -774,6 +789,31 @@ export function generatePage(config) {
       left: 0;
       right: 0;
       text-align: center;
+    }
+
+    .scoring-grid tr.lob-row td {
+      height: calc(var(--row-height) * 0.7);
+      border-top: 1px solid var(--border);
+    }
+
+    .scoring-grid tr.lob-row td.lob-label {
+      position: relative;
+      text-align: left;
+      padding-left: 4px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .scoring-grid tr.lob-row td.lob-cell {
+      border-right: 1px solid var(--border-light);
+    }
+
+    .scoring-grid tr.lob-row td.lob-cell:last-of-type {
+      border-right: 1px solid var(--border);
     }
 
     .scoring-grid td.cell-pos {

@@ -165,7 +165,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   const lineup = lineupData || [];
 
   let html = '<div class="grid-wrap"><table class="scoring-grid"><thead><tr>';
-  html += '<th class="col-bat">#</th>';
+  html += '<th class="col-bat"></th>';
   html += '<th class="col-player">Player</th>';
   html += '<th class="col-pos">Pos</th>';
   for (let i = 1; i <= innings; i++) {
@@ -812,6 +812,11 @@ export function generatePage(config) {
     .scoring-grid tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
       border-top: 2px solid var(--primary);
+    }
+
+    .scoring-grid tr.lob-row td.cell-bat,
+    .scoring-grid tr.lob-row td.cell-pos {
+      border-right: none;
     }
 
     .scoring-grid tr.lob-row td.lob-cell {

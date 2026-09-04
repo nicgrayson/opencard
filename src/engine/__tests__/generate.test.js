@@ -105,7 +105,7 @@ describe('generatePage', () => {
 
   it('renders batting-order numbers 1-9 in a lighter color than names', () => {
     const html = generatePage(defaults);
-    expect(html).toContain('<th class="col-bat">#</th>');
+    expect(html).toContain('<th class="col-bat"></th>');
     for (let n = 1; n <= 9; n++) {
       expect(html).toContain(
         `<td class="cell-bat"><span class="cell-text">${n}</span></td>`,

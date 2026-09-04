@@ -135,6 +135,14 @@ export default function LayoutSection({ config, updateConfig }) {
           />
         )}
         {config.header.show && (
+          <Toggle
+            label="Show logo circle"
+            className="mb-2"
+            checked={config.header.logo ? config.header.logo.show !== false : false}
+            onChange={(v) => updateConfig("header.logo", { ...(config.header.logo || {}), show: v })}
+          />
+        )}
+        {config.header.show && (
           <div className="mt-2 space-y-3">
             <div>
               <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">

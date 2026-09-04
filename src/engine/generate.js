@@ -698,7 +698,7 @@ export function generatePage(config) {
 
     .section-footer {
       display: flex;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 16px;
       margin-top: 10px;
     }
@@ -970,6 +970,8 @@ export function generatePage(config) {
     .fielding-block {
       flex: 0 0 auto;
       width: max-content;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar-title {
@@ -1142,6 +1144,7 @@ export function generatePage(config) {
       display: flex;
       justify-content: center;
       padding: 6px;
+      margin-top: auto;
     }
 
     .fielding {

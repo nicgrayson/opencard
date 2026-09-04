@@ -140,7 +140,11 @@ function generateHeader(config, side) {
     html += `<div class="header-logo" style="width:${size}px;height:${size}px"></div>`;
   }
   if (headerConfig.showTeamTitle) {
-    html += `<div class="header-team">${escapeHtml(teamName)}</div>`;
+    const teamLabel = headerConfig.teamLabel || "Team";
+    html += `<div class="header-field header-team-field">
+        <label>${escapeHtml(teamLabel)}</label>
+        <div class="header-line"><span class="header-value">${escapeHtml(teamName)}</span></div>
+      </div>`;
   }
   for (const field of fields) {
     const value = headerValue(field, vals, sideVals);
@@ -592,20 +596,10 @@ export function generatePage(config) {
         0 8px 40px rgba(0,0,0,0.06);
     }
 
-    .header-team {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: 1px;
-      line-height: 1;
-      color: var(--primary);
-      text-transform: uppercase;
-      white-space: nowrap;
-      padding-bottom: 2px;
+    .header-team-field {
+      flex: 0 0 auto;
+      width: 22%;
       min-width: 0;
-      max-width: 260px;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .header-logo {

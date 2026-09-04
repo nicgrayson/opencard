@@ -115,10 +115,13 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="header-logo"');
   });
 
-  it('keeps header team name from overlapping adjacent fields', () => {
-    const html = generatePage(defaults);
-    // .header-team must be able to shrink/truncate instead of overlaying fields
-    expect(html).toMatch(/\.header-team\s*\{[\s\S]*?min-width:\s*0;[\s\S]*?overflow:\s*hidden;/);
+  it('renders team name as a header field like the other fields', () => {
+    const config = deepMerge(defaults, {
+      header: { showTeamTitle: true, fields: [] },
+    });
+    const html = generatePage(config);
+    expect(html).toContain('class="header-field header-team-field"');
+    expect(html).toContain('<label>Team</label>');
   });
 
   it('renders logo circle when header.logo.show is true', () => {

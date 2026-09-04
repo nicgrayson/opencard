@@ -140,7 +140,7 @@ function generateHeader(config, side) {
     html += `<div class="header-logo" style="width:${size}px;height:${size}px"></div>`;
   }
   if (headerConfig.showTeamTitle) {
-    const teamLabel = headerConfig.teamLabel || "Team";
+    const teamLabel = headerConfig.teamLabel || (side === "home" ? "Home Team" : "Visiting Team");
     html += `<div class="header-field header-team-field">
         <label>${escapeHtml(teamLabel)}</label>
         <div class="header-line"><span class="header-value">${escapeHtml(teamName)}</span></div>

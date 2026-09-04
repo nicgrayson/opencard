@@ -115,13 +115,16 @@ describe('generatePage', () => {
     expect(html).not.toContain('class="header-logo"');
   });
 
-  it('renders team name as a header field like the other fields', () => {
+  it('renders team name as a header field with side-specific label', () => {
     const config = deepMerge(defaults, {
       header: { showTeamTitle: true, fields: [] },
     });
     const html = generatePage(config);
-    expect(html).toContain('class="header-field header-team-field"');
-    expect(html).toContain('<label>Team</label>');
+    const pages = html.split('class="print-page"');
+    const labels = (page) =>
+      (page.match(/<label>([^<]*)<\/label>/) || [])[1];
+    expect(labels(pages[1])).toBe('Visiting Team');
+    expect(labels(pages[2])).toBe('Home Team');
   });
 
   it('renders logo circle when header.logo.show is true', () => {

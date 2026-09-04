@@ -1073,16 +1073,19 @@ export function generatePage(config) {
     .game-notes-area {
       padding: 8px 10px;
       min-height: 80px;
+      flex: 1 1 auto;
+      display: flex;
     }
 
     .game-notes-lines {
       display: flex;
+      flex: 1 1 auto;
       flex-direction: column;
       gap: 0;
     }
 
     .note-line {
-      height: 26px;
+      flex: 1 1 auto;
       border-bottom: 1px solid var(--border-light);
     }
 

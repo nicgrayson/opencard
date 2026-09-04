@@ -86,8 +86,9 @@ describe('MLB game data integration', () => {
     expect(html).toContain('NYM @ PHI');
     expect(html).toContain('F. Lindor');
     expect(html).not.toContain('#12 ');
-    expect(html).toContain('Zack Wheeler'); // home pitchers on away page
-    expect(html).toContain('Sean Manaea');
+    expect(html).toContain('Z. Wheeler'); // home pitchers on away page
+    expect(html).toContain('S. Manaea');
+    expect(html).not.toMatch(/#\d+ /); // no uniform-number prefix in pitcher names
     expect(html.match(/sidebar-block fielding-block/g).length).toBe(2);
     expect(html).toContain('Citizens Bank Park');
     // stats and scoreboard numbers are never auto-filled

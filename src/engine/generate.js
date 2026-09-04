@@ -251,13 +251,13 @@ function generatePitcherLog(config, pitchers) {
   return html;
 }
 
-function generateNotes(config) {
+function generateNotes(config, lines) {
   if (!config.notes.show) return "";
-  const lines = (config.pitchers.rows || 8) + 1;
+  const count = lines != null ? lines : (config.pitchers.rows || 8) + 1;
   let html = '<div class="sidebar-block notes-block">';
   html += '<div class="sidebar-title">Game Notes</div>';
   html += '<div class="game-notes-area"><div class="game-notes-lines">';
-  for (let i = 0; i < lines; i++) {
+  for (let i = 0; i < count; i++) {
     html += '<div class="note-line"></div>';
   }
   html += "</div></div></div>";
@@ -436,7 +436,8 @@ function generateHalfInning(config, side) {
       if (footerItems[i + 1] === "notes") {
         html += '<div class="footer-stack">';
         html += generateScoreboard(config);
-        html += generateNotes(config);
+        const fullLines = (config.pitchers.rows || 8) + 1;
+        html += generateNotes(config, fullLines - 4);
         html += "</div>";
         i++;
       } else {

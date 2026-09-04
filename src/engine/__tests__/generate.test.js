@@ -213,6 +213,9 @@ describe('generatePage', () => {
     expect(scoreboardIdx).toBeGreaterThan(-1);
     expect(notesIdx).toBeGreaterThan(-1);
     expect(scoreboardIdx).toBeLessThan(notesIdx);
+    const stackNotesSegment = html.slice(notesIdx, html.indexOf('</div>', notesIdx) + 6 + 200);
+    const fullLines = (config.pitchers.rows || 8) + 1;
+    expect((stackNotesSegment.match(/note-line/g) || []).length).toBe(fullLines - 4);
   });
 
   it('applies custom colors to CSS variables', () => {

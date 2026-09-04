@@ -715,10 +715,10 @@ export function generatePage(config) {
     .section-footer .pitcher-block {
       flex: 0 0 auto;
       width: auto;
-      align-self: flex-start;
     }
 
-    .section-footer .fielding-block {
+    .section-footer .footer-stack,
+    .section-footer .notes-block {
       align-self: stretch;
     }
 
@@ -1176,7 +1176,6 @@ export function generatePage(config) {
       display: flex;
       justify-content: center;
       padding: 6px;
-      margin-top: auto;
     }
 
     .fielding {

@@ -237,8 +237,7 @@ function generatePitcherLog(config, pitchers) {
   html += "</tr></thead><tbody>";
   for (let i = 0; i < rows; i++) {
     const p = data[i] || null;
-    const num = p && p.num != null ? `#${p.num} ` : "";
-    html += `<tr><td>${escapeHtml(num + (p ? p.name || "" : ""))}</td>`;
+    html += `<tr><td>${escapeHtml(p ? shortName(p.name || "") : "")}</td>`;
     for (const stat of stats) {
       const val = p && p.stats && p.stats[stat.key] != null && p.stats[stat.key] !== ""
         ? p.stats[stat.key]

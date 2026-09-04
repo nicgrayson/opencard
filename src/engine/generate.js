@@ -252,7 +252,7 @@ function generatePitcherLog(config, pitchers) {
 
 function generateNotes(config, lines) {
   if (!config.notes.show) return "";
-  const count = lines != null ? lines : (config.pitchers.rows || 8) + 1;
+  const count = lines != null ? lines : Math.max(2, config.pitchers.rows || 8);
   let html = '<div class="sidebar-block notes-block">';
   html += '<div class="sidebar-title">Game Notes</div>';
   html += '<div class="game-notes-area"><div class="game-notes-lines">';
@@ -435,7 +435,7 @@ function generateHalfInning(config, side) {
       if (footerItems[i + 1] === "notes") {
         html += '<div class="footer-stack">';
         html += generateScoreboard(config);
-        const fullLines = (config.pitchers.rows || 8) + 1;
+        const fullLines = Math.max(2, config.pitchers.rows || 8);
         html += generateNotes(config, fullLines - 4);
         html += "</div>";
         i++;
@@ -715,6 +715,7 @@ export function generatePage(config) {
     .section-footer .pitcher-block {
       flex: 0 0 auto;
       width: auto;
+      align-self: flex-start;
     }
 
     .section-footer .footer-stack,

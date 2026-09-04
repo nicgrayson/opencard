@@ -214,7 +214,7 @@ describe('generatePage', () => {
     expect(notesIdx).toBeGreaterThan(-1);
     expect(scoreboardIdx).toBeLessThan(notesIdx);
     const stackNotesSegment = html.slice(notesIdx, html.indexOf('</div>', notesIdx) + 6 + 200);
-    const fullLines = (config.pitchers.rows || 8) + 1;
+    const fullLines = Math.max(2, config.pitchers.rows || 8);
     expect((stackNotesSegment.match(/note-line/g) || []).length).toBe(fullLines - 4);
   });
 

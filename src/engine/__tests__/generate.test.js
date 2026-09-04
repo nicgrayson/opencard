@@ -94,7 +94,7 @@ describe('generatePage', () => {
     const html = generatePage(defaults);
     expect(html).toContain('<th class="col-bat">#</th>');
     for (let n = 1; n <= 9; n++) {
-      expect(html).toContain(`<td class="cell-bat cell-text">${n}</td>`);
+      expect(html).toContain(`<td class="cell-bat"><span class="cell-text">${n}</span></td>`);
     }
   });
 

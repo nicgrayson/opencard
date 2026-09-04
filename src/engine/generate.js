@@ -189,7 +189,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     const num = player && player.num != null ? player.num : "";
     const numPrefix = num !== "" ? `#${num} ` : "";
     if (r < 9) {
-      html += `<td class="cell-bat cell-text">${r + 1}</td>`;
+      html += `<td class="cell-bat">${subHtml}<span class="cell-text"${textTop}>${r + 1}</span></td>`;
     } else {
       html += `<td class="cell-bat"></td>`;
     }
@@ -794,8 +794,7 @@ export function generatePage(config) {
       position: relative;
     }
 
-    .scoring-grid td.cell-bat .cell-text,
-    .scoring-grid td.cell-bat {
+    .scoring-grid td.cell-bat .cell-text {
       left: 0;
       right: 0;
       text-align: center;

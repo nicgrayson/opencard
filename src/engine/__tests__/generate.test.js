@@ -200,7 +200,7 @@ describe('generatePage', () => {
   it('stacks scoreboard and notes vertically when both are in the footer', () => {
     const config = deepMerge(defaults, {
       scoreboard: { show: true },
-      notes: { show: true, lines: 5 },
+      notes: { show: true },
       sections: {
         home: { footer: ['pitchers', 'fielding', 'scoreboard', 'notes'] },
       },

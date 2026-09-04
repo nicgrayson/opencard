@@ -219,7 +219,6 @@ const presets = [
       },
       notes: {
         show: true,
-        lines: 10,
       },
       fielding: {
         show: true,

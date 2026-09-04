@@ -253,7 +253,7 @@ function generatePitcherLog(config, pitchers) {
 
 function generateNotes(config) {
   if (!config.notes.show) return "";
-  const lines = config.notes.lines;
+  const lines = (config.pitchers.rows || 8) + 1;
   let html = '<div class="sidebar-block notes-block">';
   html += '<div class="sidebar-title">Game Notes</div>';
   html += '<div class="game-notes-area"><div class="game-notes-lines">';
@@ -1071,19 +1071,16 @@ export function generatePage(config) {
     .game-notes-area {
       padding: 8px 10px;
       min-height: 80px;
-      flex: 1 1 auto;
-      display: flex;
     }
 
     .game-notes-lines {
       display: flex;
-      flex: 1 1 auto;
       flex-direction: column;
       gap: 0;
     }
 
     .note-line {
-      flex: 1 1 auto;
+      height: 26px;
       border-bottom: 1px solid var(--border-light);
     }
 

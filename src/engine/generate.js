@@ -811,7 +811,7 @@ export function generatePage(config) {
 
     .scoring-grid tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
-      border-top: 1px solid var(--primary);
+      border-top: 2px solid var(--primary);
     }
 
     .scoring-grid tr.lob-row td.lob-cell {

@@ -1027,9 +1027,8 @@ export function generatePage(config) {
     }
 
     .fielding-block {
-      flex: 0 1 40%;
+      flex: 0 0 40%;
       max-width: 360px;
-      min-width: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;

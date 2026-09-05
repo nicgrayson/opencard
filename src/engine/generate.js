@@ -179,7 +179,7 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   const showLob = config.grid.lobRow && config.grid.lobRow.show !== false;
   for (let r = 0; r < rows; r++) {
     const player = lineup[r] || null;
-    html += showLob && r === rows - 1 ? '<tr class="lob-prev">' : "<tr>";
+    html += "<tr>";
     const subLines = config.grid.substitutionLines || 0;
     let subHtml = '';
     for (let k = 1; k <= subLines; k++) {
@@ -843,10 +843,18 @@ export function generatePage(config) {
 
     .scoring-grid tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
+      position: relative;
+      padding: 0;
     }
 
-    .scoring-grid tr.lob-prev td {
-      border-bottom: 2px solid var(--primary);
+    .scoring-grid tr.lob-row td::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
     }
 
     .scoring-grid tr.lob-row td.cell-bat,

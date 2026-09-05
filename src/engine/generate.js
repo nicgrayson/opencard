@@ -67,6 +67,7 @@ function generateCssVars(config) {
       --bat-col: ${s.batColWidth || 18}px;
       --stat-col: ${s.statColWidth}px;
       --diamond-max: ${config.cell.diamond.maxSize}px;
+      --fielding-size: ${(config.fielding && config.fielding.size) || 360}px;
       --margin-top: ${(config.page.margins && config.page.margins.top != null) ? config.page.margins.top : 29}px;
       --margin-right: ${(config.page.margins && config.page.margins.right != null) ? config.page.margins.right : 29}px;
       --margin-bottom: ${(config.page.margins && config.page.margins.bottom != null) ? config.page.margins.bottom : 29}px;
@@ -526,7 +527,10 @@ function calculatePrintZoom(config) {
       if (item === 'pitchers') itemH = 28 + 24 + p.rows * 26;
       if (item === 'notes' && n.show) itemH = 28 + 16 + n.lines * 22;
       if (item === 'scoreboard' && config.scoreboard.show) itemH = 100;
-      if (item === 'fielding' && config.fielding?.show) itemH = 28 + 304;
+      if (item === 'fielding' && config.fielding?.show) {
+        const size = config.fielding.size || 360;
+        itemH = 28 + 12 + Math.round((size * 260) / 320);
+      }
       maxFooterH = Math.max(maxFooterH, itemH);
     }
     height += maxFooterH;
@@ -1028,7 +1032,7 @@ export function generatePage(config) {
 
     .fielding-block {
       flex: 0 0 40%;
-      max-width: 360px;
+      max-width: var(--fielding-size);
       display: flex;
       flex-direction: column;
       justify-content: center;

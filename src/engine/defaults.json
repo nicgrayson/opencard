@@ -156,7 +156,8 @@
     "lines": 5
   },
   "fielding": {
-    "show": false
+    "show": false,
+    "size": 360
   },
   "print": {
     "fitToPage": true

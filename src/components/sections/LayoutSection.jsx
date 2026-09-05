@@ -1,5 +1,6 @@
 import SectionHeader from "../shared/SectionHeader";
 import Toggle from "../shared/Toggle";
+import NumberInput from "../shared/NumberInput";
 
 
 const ORIENTATIONS = ["landscape", "portrait"];
@@ -192,6 +193,16 @@ export default function LayoutSection({ config, updateConfig }) {
           checked={config.fielding ? config.fielding.show !== false : true}
           onChange={(v) => updateConfig("fielding.show", v)}
         />
+        {config.fielding && config.fielding.show && (
+          <NumberInput
+            label="Diagram size"
+            value={config.fielding.size || 360}
+            min={120}
+            max={560}
+            step={10}
+            onChange={(v) => updateConfig("fielding.size", v)}
+          />
+        )}
       </div>
       <div>
         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">

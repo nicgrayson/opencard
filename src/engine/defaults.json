@@ -176,7 +176,8 @@
       "footer": [
         "pitchers",
         "fielding",
-        "scoreboard"
+        "scoreboard",
+        "notes"
       ]
     }
   }

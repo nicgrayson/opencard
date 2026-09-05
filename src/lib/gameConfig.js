@@ -76,7 +76,7 @@ export function buildGameData(game) {
 
   const section = (bat, def) => ({
     label: bat === awayBat ? 'Top' : 'Bottom',
-    footer: bat === awayBat ? ['pitchers', 'fielding', 'notes'] : ['pitchers', 'fielding', 'scoreboard'],
+    footer: bat === awayBat ? ['pitchers', 'fielding', 'notes'] : ['pitchers', 'fielding', 'scoreboard', 'notes'],
     lineup: bat ? lineupEntries(bat.lineup) : [],
     pitchers: def && def.starter ? pitcherEntries([def.starter]) : [],
     fielding: def ? fieldingEntries(def) : [],

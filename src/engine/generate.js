@@ -1098,7 +1098,7 @@ export function generatePage(config) {
     }
 
     .scoreboard-block {
-      flex: 1 1 auto;
+      flex: 0 0 auto;
       border: 2px solid var(--primary);
       border-radius: 6px;
       overflow: hidden;

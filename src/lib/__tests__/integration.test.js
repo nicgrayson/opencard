@@ -76,6 +76,7 @@ describe('MLB game data integration', () => {
     expect(data.footers.away).toContain('fielding');
     expect(data.header.umpHP).toBe('Joe West');
     expect(data.footers.home).toContain('fielding');
+    expect(data.footers.home).toEqual(['pitchers', 'fielding', 'scoreboard', 'notes']);
   });
 
   it('renders autofilled lineup, pitchers, scoreboard, header, and fielding', () => {

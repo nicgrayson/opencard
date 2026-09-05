@@ -1184,6 +1184,7 @@ export function generatePage(config) {
       display: flex;
       justify-content: center;
       padding: 6px;
+      margin: auto;
     }
 
     .fielding {

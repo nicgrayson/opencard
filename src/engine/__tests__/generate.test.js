@@ -114,17 +114,23 @@ describe('generatePage', () => {
     expect(html).toMatch(/\.cell-bat\s*\{[\s\S]*?color:\s*var\(--primary-light\);/);
   });
 
-  it('renders blank LOB tracking row by default', () => {
+  it('renders blank LOB tracking band as its own table after the grid', () => {
     const html = generatePage(defaults);
+    const main = html.indexOf('<table class="scoring-grid has-lob">');
+    const band = html.indexOf('<table class="scoring-grid scoring-grid-lob">');
+    expect(main).toBeGreaterThan(-1);
+    expect(band).toBeGreaterThan(main);
     expect(html).toContain('class="lob-row"');
-    expect(html).toContain('content: ""');
+    expect(html).not.toContain('lob-row td::before');
     expect(html).not.toContain('lob-label');
   });
 
-  it('hides LOB row when lobRow.show is false', () => {
+  it('hides LOB band when lobRow.show is false', () => {
     const config = deepMerge(defaults, { grid: { lobRow: { show: false } } });
     const html = generatePage(config);
     expect(html).not.toContain('class="lob-row"');
+    expect(html).not.toContain('<table class="scoring-grid scoring-grid-lob">');
+    expect(html).toContain('<table class="scoring-grid">');
   });
 
   it('does not render logo circle by default', () => {

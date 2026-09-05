@@ -163,8 +163,9 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   const { rows, innings, statColumns } = config.grid;
   const atBatHtml = generateAtBatCell(config);
   const lineup = lineupData || [];
+  const showLob = config.grid.lobRow && config.grid.lobRow.show !== false;
 
-  let html = '<div class="grid-wrap"><table class="scoring-grid"><thead><tr>';
+  let html = `<div class="grid-wrap"><table class="scoring-grid${showLob ? " has-lob" : ""}"><thead><tr>`;
   html += '<th class="col-bat"></th>';
   html += '<th class="col-player">Player</th>';
   html += '<th class="col-pos">Pos</th>';
@@ -176,7 +177,6 @@ function generateBattingGrid(config, tbodyId, lineupData) {
   }
   html += "</tr></thead><tbody>";
 
-  const showLob = config.grid.lobRow && config.grid.lobRow.show !== false;
   for (let r = 0; r < rows; r++) {
     const player = lineup[r] || null;
     html += "<tr>";
@@ -207,8 +207,9 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     html += "</tr>";
   }
 
+  html += "</tbody></table>";
   if (showLob) {
-    html += "<tr class=\"lob-row\">";
+    html += '<table class="scoring-grid scoring-grid-lob"><tbody><tr class="lob-row">';
     html += '<td class="cell-bat"></td>';
     html += '<td class="cell-player"></td>';
     html += '<td class="cell-pos"></td>';
@@ -218,10 +219,9 @@ function generateBattingGrid(config, tbodyId, lineupData) {
     for (let i = 0; i < statColumns.length; i++) {
       html += '<td class="cell-stat"></td>';
     }
-    html += "</tr>";
+    html += "</tr></tbody></table>";
   }
-
-  html += "</tbody></table></div>";
+  html += "</div>";
   return html;
 }
 
@@ -796,6 +796,10 @@ export function generatePage(config) {
       border-bottom: 2px solid var(--primary);
     }
 
+    .scoring-grid.has-lob tr:last-child td {
+      border-bottom: none;
+    }
+
     .scoring-grid td.cell-player {
       text-align: left;
       padding-left: 4px;
@@ -841,20 +845,32 @@ export function generatePage(config) {
       color: var(--primary-light);
     }
 
-    .scoring-grid tr.lob-row td {
+    .scoring-grid.scoring-grid-lob tr.lob-row td {
       height: calc(var(--row-height) * 0.35);
-      position: relative;
       padding: 0;
+      border-top: 2px solid var(--primary);
     }
 
-    .scoring-grid tr.lob-row td::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--primary);
+    .scoring-grid.scoring-grid-lob td.cell-bat {
+      width: var(--bat-col);
+      border-right: none;
+    }
+
+    .scoring-grid.scoring-grid-lob td.cell-player {
+      width: var(--player-col);
+      border-right: none;
+    }
+
+    .scoring-grid.scoring-grid-lob td.cell-pos {
+      width: var(--pos-col);
+    }
+
+    .scoring-grid.scoring-grid-lob td.cell-inning {
+      width: var(--cell-size);
+    }
+
+    .scoring-grid.scoring-grid-lob td.cell-stat {
+      width: var(--stat-col);
     }
 
     .scoring-grid tr.lob-row td.cell-bat,

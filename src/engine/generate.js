@@ -526,7 +526,7 @@ function calculatePrintZoom(config) {
       if (item === 'pitchers') itemH = 28 + 24 + p.rows * 26;
       if (item === 'notes' && n.show) itemH = 28 + 16 + n.lines * 22;
       if (item === 'scoreboard' && config.scoreboard.show) itemH = 100;
-      if (item === 'fielding' && config.fielding?.show) itemH = 28 + 190;
+      if (item === 'fielding' && config.fielding?.show) itemH = 28 + 304;
       maxFooterH = Math.max(maxFooterH, itemH);
     }
     height += maxFooterH;
@@ -1027,10 +1027,12 @@ export function generatePage(config) {
     }
 
     .fielding-block {
-      flex: 0 0 auto;
-      width: max-content;
+      flex: 0 1 40%;
+      max-width: 360px;
+      min-width: 0;
       display: flex;
       flex-direction: column;
+      justify-content: center;
     }
 
     .sidebar-title {
@@ -1208,12 +1210,10 @@ export function generatePage(config) {
       display: flex;
       justify-content: center;
       padding: 6px;
-      margin: auto;
     }
 
     .fielding {
       width: 100%;
-      max-width: 200px;
       height: auto;
     }
 

@@ -75,4 +75,84 @@ describe('parseSide fielding (starting fielders)', () => {
       ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'],
     );
   });
+
+  it('recovers a starter who was pinch-hit for and dropped out of battingOrder', () => {
+    // Real Cubs/Brewers failure: the catcher bats 9th but is later pinch-hit
+    // for, so `battingOrder` lists the pinch hitter instead. The lineup still
+    // carries the catcher's batting order (900 vs the sub's 901), so the
+    // lowest order per position must win the fielder slot.
+    const side = makeSide({
+      order: [1, 2, 3, 4, 5, 6, 7, 8],
+      positions: {
+        1: { name: 'Pete Crow-Armstrong', pos: 'CF', bo: 100 },
+        2: { name: 'Seiya Suzuki', pos: 'RF', bo: 200 },
+        3: { name: 'Michael Busch', pos: '1B', bo: 300 },
+        4: { name: 'Alex Bregman', pos: '3B', bo: 400 },
+        5: { name: 'Ian Happ', pos: 'DH', bo: 500 },
+        6: { name: 'Nico Hoerner', pos: 'SS', bo: 600 },
+        7: { name: 'Pedro Ramírez', pos: '2B', bo: 700 },
+        8: { name: 'Michael Conforto', pos: 'LF', bo: 800 },
+      },
+    });
+    // The catcher batted 9th (900) but was pinch-hit for. The pinch hitter is
+    // the one listed in the final `battingOrder`, and the catcher is not.
+    side.players.ID9 = {
+      person: { fullName: 'Carson Kelly' },
+      position: { abbreviation: 'C' },
+      jerseyNumber: '',
+      gameStatus: { isSubstitute: false },
+      stats: { batting: { battingOrder: 900, atBats: 1, hits: 0, runs: 0, rbi: 0 }, pitching: {} },
+    };
+    side.players.ID10 = {
+      person: { fullName: 'BJ Murray Jr.' },
+      position: { abbreviation: 'PH' },
+      jerseyNumber: '',
+      gameStatus: { isSubstitute: true },
+      stats: { batting: { battingOrder: 901, atBats: 1, hits: 0, runs: 0, rbi: 0 }, pitching: {} },
+    };
+    side.battingOrder.push(10); // 9th batter in the final order is the pinch hitter
+
+    const result = parseSide(side, 'away');
+    const byPos = Object.fromEntries(
+      (result.fielders || []).filter(Boolean).map((f) => [f.pos, f.name]),
+    );
+    expect(byPos.C).toBe('Carson Kelly');
+    expect(result.fielders.map((f) => f && f.pos)).toEqual(
+      ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'],
+    );
+  });
+
+  it('shows the starting fielders, not a double-switch replacement who batted in a lower slot', () => {
+    const side = makeSide({
+      order: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      positions: {
+        1: { name: 'Starter CF', pos: 'CF', bo: 100 },
+        2: { name: 'Starter 2B', pos: '2B', bo: 200 },
+        3: { name: 'Starter 1B', pos: '1B', bo: 300 },
+        4: { name: 'Starter 3B', pos: '3B', bo: 400 },
+        5: { name: 'Starter SS', pos: 'SS', bo: 500 },
+        6: { name: 'Starter RF', pos: 'RF', bo: 600 },
+        7: { name: 'Starter C', pos: 'C', bo: 700 },
+        8: { name: 'Starter LF', pos: 'LF', bo: 800 },
+        9: { name: 'Starter DH', pos: 'DH', bo: 900 },
+      },
+    });
+    // Double switch: the replacement left fielder enters the 2-hole (201) —
+    // numerically lower than the starting LF's 800.
+    side.players.ID99 = {
+      person: { fullName: 'Repl LF' },
+      position: { abbreviation: 'LF' },
+      jerseyNumber: '',
+      gameStatus: { isSubstitute: true },
+      stats: { batting: { battingOrder: 201, atBats: 1, runs: 0, hits: 0, rbi: 0 }, pitching: {} },
+    };
+
+    const result = parseSide(side, 'away');
+    const byPos = Object.fromEntries(
+      (result.fielders || []).filter(Boolean).map((f) => [f.pos, f.name]),
+    );
+    expect(byPos.LF).toBe('Starter LF');
+    expect(byPos['2B']).toBe('Starter 2B');
+    expect(byPos.C).toBe('Starter C');
+  });
 });

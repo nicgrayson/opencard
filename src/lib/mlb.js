@@ -142,15 +142,34 @@ export function parseSide(side, tag, starterId, playerInfo) {
     }
   }
 
-  // Derive the STARTING fielders from `battingOrder` (the 9 starter IDs).
-  // Unlike `gameStatus.isSubstitute`, this reliable identifies genuine
-  // starters even when the feed mislabels some as substitutes (and avoids
-  // picking a late-game replacement who never started).
+  // The STARTING nine is the lowest battingOrder per slot; every other batter
+  // is a replacement. Snapshotting the fielders from those slot-starters means
+  // the diagram can only ever show starting fielders. This matters for double
+  // switches and defensive moves, where the replacement fielder bats in a
+  // different (often lower) slot than the fielder they replaced — a numeric
+  // comparison across all batters would hand the position to the replacement.
+  for (const e of bySlot.values()) {
+    const pos = e.pos
+    if (pos && FIELDING.has(pos) && !byPos.has(pos)) {
+      byPos.set(pos, { id: e.id, name: e.name, pos, num: e.num })
+    }
+  }
+  // In the rare case two slot-starters share a defensive position (mid-game
+  // positional switch), the lowest battingOrder among all batters fills the gap.
+  for (const e of lineup) {
+    const pos = e.pos
+    if (pos && FIELDING.has(pos) && !byPos.has(pos)) {
+      byPos.set(pos, { id: e.id, name: e.name, pos, num: e.num })
+    }
+  }
+  // A starter in the current order who hasn't batted yet has no batting-order
+  // entry; backfill any position left open from `battingOrder`.
   const startIds = (side.battingOrder || []).map((id) => String(id))
   const byId = new Map(
     players.map(([id, p]) => [String(id).replace(/^ID/, ''), p]),
   )
   for (const id of startIds) {
+    if (byPos.size >= FIELDING.size) break
     const p = byId.get(id)
     if (!p) continue
     const pos = (p.position || {}).abbreviation

@@ -119,8 +119,8 @@ const presets = [
     },
   },
   {
-    name: 'Numbers',
-    description: 'Numbers Game #22 style with team header details',
+    name: 'Ballpark',
+    description: 'Classic ballpark scorekeeping sheet with team header details',
     overrides: {
       theme: {
         colors: {
@@ -135,6 +135,7 @@ const presets = [
           borderLight: '#4a4a4a',
           diamondFill: 'transparent',
           diamondStroke: '#d5d5d5',
+          batNumber: '#444444',
         },
         fonts: {
           display: 'Barlow Condensed',
@@ -162,25 +163,26 @@ const presets = [
           showTeamTitle: true,
           fields: [
             { key: 'manager', label: 'Manager', width: '13%' },
-            { key: 'uniform', label: 'Uniforms', width: '13%' },
-            { key: 'umpHP', label: 'Umpire HP', width: '11%', umpire: true },
-            { key: 'ump1B', label: 'Umpire 1B', width: '11%', umpire: true },
-            { key: 'ump2B', label: 'Umpire 2B', width: '11%', umpire: true },
-            { key: 'ump3B', label: 'Umpire 3B', width: '11%', umpire: true },
-            { key: 'howWatched', label: 'How Watched', width: '15%' },
-            { key: 'start', label: 'First Pitch', width: '15%' },
+            { key: 'uniform', label: 'Uniforms', width: '16%' },
+            { key: 'umpHP', label: 'Umpire HP', width: '9%', umpire: true },
+            { key: 'ump1B', label: 'Umpire 1B', width: '9%', umpire: true },
+            { key: 'ump2B', label: 'Umpire 2B', width: '9%', umpire: true },
+            { key: 'ump3B', label: 'Umpire 3B', width: '9%', umpire: true },
+            { key: 'howWatched', label: 'Seat / Announcers', width: '17%' },
+            { key: 'start', label: 'First Pitch', width: '14%' },
           ],
         },
         home: {
           showTeamTitle: true,
           fields: [
-            { key: 'manager', label: 'Manager', width: '14%' },
-            { key: 'uniform', label: 'Uniforms', width: '14%' },
-            { key: 'venue', label: 'Venue', width: '20%' },
-            { key: 'attendance', label: 'Attendance', width: '14%' },
-            { key: 'date', label: 'Date', width: '14%' },
-            { key: 'weather', label: 'Weather', width: '12%' },
-            { key: 'end', label: 'Final Out', width: '12%' },
+            { key: 'manager', label: 'Manager', width: '13%' },
+            { key: 'uniform', label: 'Uniforms', width: '16%' },
+            { key: 'ballpark', label: 'Ballpark', width: '13%' },
+            { key: 'city', label: 'City', width: '11%' },
+            { key: 'attendance', label: 'Attendance', width: '13%' },
+            { key: 'date', label: 'Date', width: '13%' },
+            { key: 'weather', label: 'Weather', width: '10%' },
+            { key: 'end', label: 'Final Out', width: '11%' },
           ],
         },
       },
@@ -189,6 +191,7 @@ const presets = [
         innings: 10,
         showInningLabels: true,
         substitutionLines: 2,
+        lobRow: { label: 'LOB', showLabel: true },
         statColumns: [
           { key: 'AB', label: 'AB' },
           { key: 'R', label: 'R' },
@@ -202,7 +205,7 @@ const presets = [
         count: { show: false, position: 'bottom-right', balls: 3, strikes: 2, layout: 'vertical' },
       },
       pitchers: {
-        rows: 7,
+        rows: 9,
         stats: [
           { key: 'R/L', label: 'R/L' },
           { key: 'IP', label: 'IP' },
@@ -215,7 +218,7 @@ const presets = [
       },
       scoreboard: {
         show: true,
-        totals: ['R', 'H', 'E'],
+        totals: ['R', 'H', 'E', 'LOB'],
       },
       notes: {
         show: true,

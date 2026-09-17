@@ -56,8 +56,8 @@ function headerFields(game) {
 function scoreboardData(game, innings) {
   const pad = Array.from({ length: innings || 12 }, () => ({ away: '', home: '' }));
   return {
-    awayName: game.away ? game.away.abbreviation : '',
-    homeName: game.home ? game.home.abbreviation : '',
+    awayName: game.away ? game.away.name || game.away.abbreviation : '',
+    homeName: game.home ? game.home.name || game.home.abbreviation : '',
     innings: pad,
     totals: { away: { R: '', H: '', E: '' }, home: { R: '', H: '', E: '' } },
   };

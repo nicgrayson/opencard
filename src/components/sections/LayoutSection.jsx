@@ -182,6 +182,24 @@ export default function LayoutSection({ config, updateConfig }) {
             checked={config.notes.show}
             onChange={(v) => updateConfig("notes.show", v)}
           />
+          {config.notes.show && (
+            <div className="space-y-2">
+              <NumberInput
+                label="Top page lines"
+                value={config.notes.topLines ?? config.notes.lines ?? 5}
+                min={2}
+                max={20}
+                onChange={(v) => updateConfig("notes.topLines", v)}
+              />
+              <NumberInput
+                label="Bottom page lines"
+                value={config.notes.bottomLines ?? config.notes.lines ?? 5}
+                min={2}
+                max={20}
+                onChange={(v) => updateConfig("notes.bottomLines", v)}
+              />
+            </div>
+          )}
         </div>
       </div>
       <div>

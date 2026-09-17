@@ -114,15 +114,18 @@ describe('generatePage', () => {
     expect(html).toMatch(/\.cell-bat\s*\{[\s\S]*?color:\s*var\(--primary-light\);/);
   });
 
-  it('renders blank LOB tracking band as its own table after the grid', () => {
+  it('renders LOB tracking band after the grid, unlabeled unless lobRow.showLabel', () => {
     const html = generatePage(defaults);
     const main = html.indexOf('<table class="scoring-grid has-lob">');
     const band = html.indexOf('<table class="scoring-grid scoring-grid-lob">');
     expect(main).toBeGreaterThan(-1);
     expect(band).toBeGreaterThan(main);
     expect(html).toContain('class="lob-row"');
-    expect(html).not.toContain('lob-row td::before');
-    expect(html).not.toContain('lob-label');
+    expect(html).toContain('lob-label-text');
+    expect(html).not.toContain('>LOB</span>');
+
+    const labeled = generatePage(deepMerge(defaults, { grid: { lobRow: { showLabel: true } } }));
+    expect(labeled).toContain('>LOB</span>');
   });
 
   it('hides LOB band when lobRow.show is false', () => {
@@ -204,7 +207,7 @@ describe('generatePage', () => {
     expect(html).toContain('class="scoreboard-totals"');
   });
 
-  it('stacks scoreboard and notes vertically when both are in the footer', () => {
+  it('stacks scoreboard and notes vertically in the footer row', () => {
     const config = deepMerge(defaults, {
       scoreboard: { show: true },
       notes: { show: true },
@@ -221,8 +224,8 @@ describe('generatePage', () => {
     expect(notesIdx).toBeGreaterThan(-1);
     expect(scoreboardIdx).toBeLessThan(notesIdx);
     const stackNotesSegment = html.slice(notesIdx, html.indexOf('</div>', notesIdx) + 6 + 200);
-    const fullLines = Math.max(2, config.pitchers.rows || 8);
-    expect((stackNotesSegment.match(/note-line/g) || []).length).toBe(fullLines - 4);
+    const noteCount = Math.max(2, config.notes.lines || Math.max(2, config.pitchers.rows || 8));
+    expect((stackNotesSegment.match(/note-line/g) || []).length).toBe(noteCount);
   });
 
   it('applies custom colors to CSS variables', () => {

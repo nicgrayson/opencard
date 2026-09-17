@@ -45,7 +45,7 @@
     "showOnSecondPage": true,
     "logo": {
       "show": false,
-      "size": 34
+      "size": 44
     },
     "fields": [
       { "key": "date", "label": "Date", "width": "15%" },
@@ -64,6 +64,7 @@
     "substitutionLines": 0,
     "lobRow": {
       "show": true,
+      "showLabel": false,
       "label": "LOB"
     },
     "statColumns": [
@@ -153,7 +154,9 @@
   },
   "notes": {
     "show": true,
-    "lines": 5
+    "lines": 5,
+    "topLines": 12,
+    "bottomLines": 6
   },
   "fielding": {
     "show": false,

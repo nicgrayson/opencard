@@ -68,10 +68,12 @@ function generateCssVars(config) {
       --stat-col: ${s.statColWidth}px;
       --diamond-max: ${config.cell.diamond.maxSize}px;
       --fielding-size: ${(config.fielding && config.fielding.size) || 360}px;
+      --scoreboard-w: ${100 + config.grid.innings * 40 + config.scoreboard.totals.length * 46 + 6}px;
       --margin-top: ${(config.page.margins && config.page.margins.top != null) ? config.page.margins.top : 29}px;
       --margin-right: ${(config.page.margins && config.page.margins.right != null) ? config.page.margins.right : 29}px;
       --margin-bottom: ${(config.page.margins && config.page.margins.bottom != null) ? config.page.margins.bottom : 29}px;
-      --margin-left: ${(config.page.margins && config.page.margins.left != null) ? config.page.margins.left : 29}px;`;
+      --margin-left: ${(config.page.margins && config.page.margins.left != null) ? config.page.margins.left : 29}px;
+      --bat-ink: ${c.batNumber || c.primaryLight};`;
 }
 
 function generateAtBatCell(config) {
@@ -138,7 +140,7 @@ function generateHeader(config, side) {
   let html = '<div class="section-header-content">';
   const logo = (config.header.logo || {});
   if (logo.show && logo.show !== false) {
-    const size = logo.size || 34;
+    const size = logo.size || 44;
     html += `<div class="header-logo" style="width:${size}px;height:${size}px"></div>`;
   }
   if (headerConfig.showTeamTitle) {
@@ -210,9 +212,13 @@ function generateBattingGrid(config, tbodyId, lineupData) {
 
   html += "</tbody></table>";
   if (showLob) {
+    const lobLabel =
+      config.grid.lobRow && config.grid.lobRow.showLabel
+        ? escapeHtml((config.grid.lobRow && config.grid.lobRow.label) || "LOB")
+        : "";
     html += '<table class="scoring-grid scoring-grid-lob"><tbody><tr class="lob-row">';
     html += '<td class="cell-bat"></td>';
-    html += '<td class="cell-player"></td>';
+    html += `<td class="cell-player"><span class="lob-label-text">${lobLabel}</span></td>`;
     html += '<td class="cell-pos"></td>';
     for (let i = 0; i < innings; i++) {
       html += '<td class="cell-inning lob-cell"></td>';
@@ -252,9 +258,16 @@ function generatePitcherLog(config, pitchers) {
   return html;
 }
 
+function noteCountFor(config, side) {
+  const n = config.notes;
+  const pageLines = side === "home" ? n.bottomLines : n.topLines;
+  if (pageLines != null) return Math.max(2, pageLines);
+  return Math.max(2, n.lines || Math.max(2, config.pitchers.rows || 8));
+}
+
 function generateNotes(config, lines) {
   if (!config.notes.show) return "";
-  const count = lines != null ? lines : Math.max(2, config.pitchers.rows || 8);
+  const count = lines != null ? lines : noteCountFor(config, "away");
   let html = '<div class="sidebar-block notes-block">';
   html += '<div class="sidebar-title">Game Notes</div>';
   html += '<div class="game-notes-area"><div class="game-notes-lines">';
@@ -322,9 +335,9 @@ function generateScoreboard(config) {
 
 const FIELD_META = {
   C: { x: 160, y: 262 },
-  "1B": { x: 240, y: 208 },
+  "1B": { x: 250, y: 208 },
   "2B": { x: 226, y: 132 },
-  "3B": { x: 80, y: 208 },
+  "3B": { x: 70, y: 208 },
   SS: { x: 94, y: 132 },
   LF: { x: 58, y: 52 },
   CF: { x: 160, y: 34 },
@@ -432,13 +445,12 @@ function generateHalfInning(config, side) {
     if (item === "pitchers") {
       html += generatePitcherLog(config, data.pitchers);
     } else if (item === "notes") {
-      html += generateNotes(config);
+      html += generateNotes(config, noteCountFor(config, side));
     } else if (item === "scoreboard") {
       if (footerItems[i + 1] === "notes") {
         html += '<div class="footer-stack">';
         html += generateScoreboard(config);
-        const fullLines = Math.max(2, config.pitchers.rows || 8);
-        html += generateNotes(config, fullLines - 4);
+        html += generateNotes(config, noteCountFor(config, side));
         html += "</div>";
         i++;
       } else {
@@ -521,19 +533,27 @@ function calculatePrintZoom(config) {
     height += 10;
 
     const footerItems = config.sections[side].footer;
-    let maxFooterH = 0;
-    for (const item of footerItems) {
+    const nLines = noteCountFor(config, side);
+    let footerH = 0;
+    for (let i = 0; i < footerItems.length; i++) {
+      const item = footerItems[i];
       let itemH = 0;
       if (item === 'pitchers') itemH = 28 + 24 + p.rows * 26;
-      if (item === 'notes' && n.show) itemH = 28 + 16 + n.lines * 22;
-      if (item === 'scoreboard' && config.scoreboard.show) itemH = 100;
       if (item === 'fielding' && config.fielding?.show) {
         const size = config.fielding.size || 360;
         itemH = 28 + 12 + Math.round((size * 260) / 320);
       }
-      maxFooterH = Math.max(maxFooterH, itemH);
+      if (item === 'scoreboard' && config.scoreboard.show) {
+        itemH = 108;
+        if (footerItems[i + 1] === 'notes' && n.show) {
+          itemH += 16 + 28 + 16 + nLines * 22;
+          i++;
+        }
+      }
+      if (item === 'notes' && n.show) itemH = 28 + 16 + nLines * 22;
+      footerH = Math.max(footerH, itemH);
     }
-    height += maxFooterH;
+    height += footerH;
 
     height += 20;
 
@@ -681,7 +701,7 @@ export function generatePage(config) {
     .section-label {
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 28px;
+      font-size: 36px;
       letter-spacing: 3px;
       line-height: 1;
       text-transform: uppercase;
@@ -730,7 +750,7 @@ export function generatePage(config) {
 
     .footer-stack {
       flex: 1 1 auto;
-      min-width: 0;
+      min-width: fit-content;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -738,10 +758,7 @@ export function generatePage(config) {
 
     .footer-stack .scoreboard-block {
       flex: 0 0 auto;
-    }
-
-    .footer-stack .notes-block {
-      flex: 1 1 auto;
+      width: fit-content;
     }
 
     .scoring-grid {
@@ -838,7 +855,7 @@ export function generatePage(config) {
 
     .scoring-grid td.cell-bat {
       position: relative;
-      color: var(--primary-light);
+      color: var(--bat-ink);
       border-right: 1px solid var(--border-light);
     }
 
@@ -846,7 +863,7 @@ export function generatePage(config) {
       left: 0;
       right: 0;
       text-align: center;
-      color: var(--primary-light);
+      color: var(--bat-ink);
     }
 
     .scoring-grid.scoring-grid-lob tr.lob-row td {
@@ -880,6 +897,17 @@ export function generatePage(config) {
     .scoring-grid tr.lob-row td.cell-bat,
     .scoring-grid tr.lob-row td.cell-player {
       border-right: none;
+    }
+
+    .scoring-grid tr.lob-row .lob-label-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.6px;
+      color: var(--primary);
+      display: block;
+      line-height: 1;
+      padding: 0 4px;
     }
 
     .scoring-grid tr.lob-row td.lob-cell {
@@ -1118,7 +1146,7 @@ export function generatePage(config) {
     }
 
     .note-line {
-      flex: 1 1 auto;
+      flex: 1 1 0;
       border-bottom: 1px solid var(--border-light);
     }
 
@@ -1163,7 +1191,7 @@ export function generatePage(config) {
 
     .scoreboard-table {
       border-collapse: collapse;
-      width: 100%;
+      width: var(--scoreboard-w);
       table-layout: fixed;
     }
 
@@ -1188,12 +1216,22 @@ export function generatePage(config) {
     .scoreboard-table td:first-child {
       text-align: left;
       padding-left: 8px;
-      width: 50px;
+      width: 100px;
       font-weight: 700;
     }
 
+    .scoreboard-table th:not(:first-child):not(.scoreboard-totals),
+    .scoreboard-table td:not(:first-child):not(.scoreboard-totals) {
+      width: 40px;
+    }
+
+    .scoreboard-table th.scoreboard-totals,
+    .scoreboard-table td.scoreboard-totals {
+      width: 46px;
+    }
+
     .scoreboard-table td {
-      height: 22px;
+      height: 26px;
       color: var(--ink);
       font-weight: 500;
     }
@@ -1334,6 +1372,29 @@ ${config.pages !== 'away' ? `  <div class="print-page">
     </div>
   </div>` : ''}
 </div>
+
+<script>
+(function () {
+  function pin() {
+    try {
+      var card = document.querySelector('.scorecard');
+      var pages = document.querySelectorAll('.print-page');
+      var nw = card ? card.scrollWidth : 0;
+      for (var i = 0; i < pages.length; i++) {
+        if (pages[i].scrollWidth > nw) nw = pages[i].scrollWidth;
+      }
+      if (nw > 0) {
+        card.style.width = nw + 'px';
+        document.body.style.minWidth = (nw + 40) + 'px';
+      }
+    } catch (e) {}
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(pin);
+  }
+  window.addEventListener('load', pin);
+})();
+</script>
 
 </body>
 </html>`;

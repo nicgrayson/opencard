@@ -4,7 +4,8 @@ import { parseSide } from '../mlb';
 // Reproduces the real feed's failure mode: a genuine starter is flagged
 // `isSubstitute=true` (they get swapped mid-game but did start), while a
 // late-inning replacement is not in the starting batting order. Fielders must
-// be derived from `battingOrder` (the starting nine).
+// come from the slot-starters' starting position (`allPositions[0]`), not
+// `position`, which mutates as the lineup shuffles.
 function makeSide({ order, positions }) {
   const players = {};
   const battingOrder = [];
@@ -14,6 +15,7 @@ function makeSide({ order, positions }) {
     players[`ID${id}`] = {
       person: { fullName: p.name },
       position: { abbreviation: p.pos },
+      allPositions: [{ abbreviation: p.start || p.pos }],
       jerseyNumber: p.num || '',
       gameStatus: { isSubstitute: !!p.sub },
       stats: {
@@ -51,6 +53,7 @@ describe('parseSide fielding (starting fielders)', () => {
     side.players.ID10 = {
       person: { fullName: 'Brian Navarreto' },
       position: { abbreviation: 'C' },
+      allPositions: [{ abbreviation: 'PH' }],
       jerseyNumber: '',
       gameStatus: { isSubstitute: true },
       stats: { batting: {}, pitching: {} },
@@ -58,6 +61,7 @@ describe('parseSide fielding (starting fielders)', () => {
     side.players.ID11 = {
       person: { fullName: 'Xavier Edwards' },
       position: { abbreviation: 'CF' },
+      allPositions: [{ abbreviation: 'PH' }],
       jerseyNumber: '',
       gameStatus: { isSubstitute: true },
       stats: { batting: {}, pitching: {} },
@@ -106,6 +110,7 @@ describe('parseSide fielding (starting fielders)', () => {
     side.players.ID10 = {
       person: { fullName: 'BJ Murray Jr.' },
       position: { abbreviation: 'PH' },
+      allPositions: [{ abbreviation: 'PH' }],
       jerseyNumber: '',
       gameStatus: { isSubstitute: true },
       stats: { batting: { battingOrder: 901, atBats: 1, hits: 0, runs: 0, rbi: 0 }, pitching: {} },
@@ -142,6 +147,7 @@ describe('parseSide fielding (starting fielders)', () => {
     side.players.ID99 = {
       person: { fullName: 'Repl LF' },
       position: { abbreviation: 'LF' },
+      allPositions: [{ abbreviation: 'LF' }],
       jerseyNumber: '',
       gameStatus: { isSubstitute: true },
       stats: { batting: { battingOrder: 201, atBats: 1, runs: 0, hits: 0, rbi: 0 }, pitching: {} },
@@ -154,5 +160,56 @@ describe('parseSide fielding (starting fielders)', () => {
     expect(byPos.LF).toBe('Starter LF');
     expect(byPos['2B']).toBe('Starter 2B');
     expect(byPos.C).toBe('Starter C');
+  });
+
+  it('keeps starting fielders when defensive switches leave subs in the final boxscore', () => {
+    // Reproduces the CWS/Guardians feed: a double switch leaves the final
+    // boxscore `position` doubled up (two SS, two 3B) and the vacated 1B/2B
+    // held by subs. The starting positions in `allPositions[0]` must win.
+    const side = makeSide({
+      order: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      positions: {
+        // Meidroth started 2B, switched to SS late; boxscore records final pos.
+        1: { name: 'Chase Meidroth', pos: 'SS', start: '2B', bo: 100 },
+        2: { name: 'Randal Grichuk', pos: 'LF', bo: 200 },
+        // Vargas started 1B, was pulled in to 3B in the 5th.
+        3: { name: 'Miguel Vargas', pos: '3B', start: '1B', bo: 300 },
+        4: { name: 'Tommy Pham', pos: 'DH', bo: 400 },
+        5: { name: 'Kyle Teel', pos: 'C', bo: 500 },
+        6: { name: 'Brenton Doyle', pos: 'CF', bo: 600 },
+        7: { name: 'Colson Montgomery', pos: '3B', bo: 700 },
+        8: { name: 'Luisangel Acuña', pos: 'SS', bo: 800 },
+        9: { name: 'Tristan Peters', pos: 'RF', bo: 900 },
+      },
+    });
+    // Subs who finished the game at the vacated spots — never starters.
+    side.players.ID10 = {
+      person: { fullName: 'Munetaka Murakami' },
+      position: { abbreviation: '1B' },
+      allPositions: [{ abbreviation: '1B' }],
+      jerseyNumber: '',
+      gameStatus: { isSubstitute: true },
+      stats: { batting: { battingOrder: 701, atBats: 1, runs: 0, hits: 0, rbi: 0 }, pitching: {} },
+    };
+    side.players.ID11 = {
+      person: { fullName: 'Sam Antonacci' },
+      position: { abbreviation: '2B' },
+      allPositions: [{ abbreviation: 'PH' }, { abbreviation: '2B' }],
+      jerseyNumber: '',
+      gameStatus: { isSubstitute: true },
+      stats: { batting: { battingOrder: 801, atBats: 1, runs: 0, hits: 0, rbi: 0 }, pitching: {} },
+    };
+
+    const result = parseSide(side, 'away');
+    const byPos = Object.fromEntries(
+      (result.fielders || []).filter(Boolean).map((f) => [f.pos, f.name]),
+    );
+    expect(byPos['1B']).toBe('Miguel Vargas');
+    expect(byPos['2B']).toBe('Chase Meidroth');
+    expect(byPos['3B']).toBe('Colson Montgomery');
+    expect(byPos.SS).toBe('Luisangel Acuña');
+    expect(result.fielders.map((f) => f && f.pos)).toEqual(
+      ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'],
+    );
   });
 });

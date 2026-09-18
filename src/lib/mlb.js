@@ -95,7 +95,12 @@ export function parseSide(side, tag, starterId, playerInfo) {
       stats = {},
     } = p
     const battingOrder = (stats.batting || {}).battingOrder || p.battingOrder
-    const pos = position.abbreviation
+    // `p.allPositions[0]` is where a player STARTED; `p.position` mutates as
+    // subs and defensive switches shuffle the lineup, so it can end up a spot
+    // the player never defended from the first pitch. The fielding diagram
+    // must be built from the starting positions, not the final ones.
+    const pos = (p.allPositions && p.allPositions[0] && p.allPositions[0].abbreviation)
+      || position.abbreviation
     const name = fullName
     const num = jersey(p)
 
@@ -143,11 +148,11 @@ export function parseSide(side, tag, starterId, playerInfo) {
   }
 
   // The STARTING nine is the lowest battingOrder per slot; every other batter
-  // is a replacement. Snapshotting the fielders from those slot-starters means
-  // the diagram can only ever show starting fielders. This matters for double
-  // switches and defensive moves, where the replacement fielder bats in a
-  // different (often lower) slot than the fielder they replaced — a numeric
-  // comparison across all batters would hand the position to the replacement.
+  // is a replacement. Each slot-starter carries their starting position (see
+  // allPositions above), so mapping them directly keeps the diagram on the
+  // players who took the field at first pitch, even through double switches
+  // and defensive moves. A replacement that ends up at a "lower" batting slot
+  // is a substitute and can never take a starting spot.
   for (const e of bySlot.values()) {
     const pos = e.pos
     if (pos && FIELDING.has(pos) && !byPos.has(pos)) {
@@ -172,7 +177,8 @@ export function parseSide(side, tag, starterId, playerInfo) {
     if (byPos.size >= FIELDING.size) break
     const p = byId.get(id)
     if (!p) continue
-    const pos = (p.position || {}).abbreviation
+    const pos = (p.allPositions && p.allPositions[0] && p.allPositions[0].abbreviation)
+      || (p.position || {}).abbreviation
     if (pos && FIELDING.has(pos) && !byPos.has(pos)) {
       byPos.set(pos, { id, name: p.person?.fullName || '', pos, num: jersey(p) })
     }

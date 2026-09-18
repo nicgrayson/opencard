@@ -1,39 +1,46 @@
-name: Deploy to GitHub Pages
+name: Build and deploy to nicgrayson.github.io
 
 on:
   push:
     branches: [main]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to pages repo
+        env:
+          DEPLOY_KEY: ${{ secrets.PAGES_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          rm -rf /tmp/pages
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key" \
+            git clone --depth 1 git@github.com:nicgrayson/nicgrayson.github.io.git /tmp/pages
+
+          rm -rf /tmp/pages/scorecard
+          cp -r dist /tmp/pages/scorecard
+
+          cd /tmp/pages
+          git config user.name "opencard deploy bot"
+          git config user.email "opencard-deploy@users.noreply.github.com"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key" git add scorecard
+          git diff --cached --quiet || {
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key" git commit -m "rebuild Scorecard Builder from nicgrayson/opencard"
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key" git push origin main
+          }

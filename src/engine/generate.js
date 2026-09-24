@@ -511,7 +511,15 @@ function resolvePageSize(page) {
   return { widthIn, heightIn, availW, availH, cssSize, mt, mr, mb, ml };
 }
 
-function calculatePrintZoom(config) {
+// Computes the print-time scale for a fit-to-page layout. Instead of
+// uniformly shrinking the whole card (which leaves large blank bands on the
+// axis where the content is narrower than the page), the flexible dimension
+// is stretched so the printed card fills the entire printable area:
+//   - when height-constrained (landscape), extra width is spread across the
+//     inning cells, and
+//   - when width-constrained (portrait), extra height is spread across the
+//     grid rows.
+function calculatePrintFit(config) {
   const s = config.theme.sizing;
   const g = config.grid;
   const p = config.pitchers;
@@ -567,21 +575,64 @@ function calculatePrintZoom(config) {
 
   const { availW, availH } = resolvePageSize(config.page);
 
-  const zoomW = availW / width;
-  const zoomH = availH / maxPageH;
+  const widthLimited = availW / width <= availH / maxPageH;
 
-  let zoom = Math.min(zoomW, zoomH);
-  zoom = Math.min(zoom, 1);
-  zoom = Math.floor(zoom * 100) / 100;
+  let zoom;
+  let extraW = 0;
+  let extraH = 0;
+  if (widthLimited) {
+    zoom = Math.min(availW / width, 1);
+    if (zoom < 1 && g.rows > 0) extraH = availH / zoom - maxPageH;
+  } else {
+    zoom = Math.min(availH / maxPageH, 1);
+    if (zoom < 1 && g.innings > 0) extraW = availW / zoom - width;
+  }
+  if (zoom >= 1) {
+    zoom = 1;
+    extraW = 0;
+    extraH = 0;
+  }
 
-  return zoom;
+  const pageW = width + extraW;
+
+  const vars = [];
+  if (extraW > 0 && g.innings > 0) {
+    vars.push(`--cell-size: ${Math.round(s.inningCellWidth + extraW / g.innings)}px;`);
+  }
+  if (extraH > 0 && g.rows > 0) {
+    vars.push(`--row-height: ${Math.round(s.rowHeight + extraH / g.rows)}px;`);
+  }
+
+  return {
+    zoom: Math.floor(zoom * 100) / 100,
+    pageW,
+    vars: vars.join(' '),
+    availW,
+    availH,
+    baseCell: s.inningCellWidth,
+    baseRow: s.rowHeight,
+    innings: g.innings,
+    rows: g.rows,
+    baseW: width,
+  };
 }
 
 export function generatePage(config) {
   const fontsUrl = buildFontsUrl(config.theme.fonts);
   const cssVars = generateCssVars(config);
-  const fitToPage = config.print && config.print.fitToPage;
-  const printZoom = fitToPage ? calculatePrintZoom(config) : null;
+  const fit = config.print && config.print.fitToPage ? calculatePrintFit(config) : null;
+  const printScale = fit ? fit.zoom : null;
+  const fitJson = fit
+    ? JSON.stringify({
+        availW: fit.availW,
+        availH: fit.availH,
+        baseCell: fit.baseCell,
+        baseRow: fit.baseRow,
+        innings: fit.innings,
+        rows: fit.rows,
+        baseW: fit.baseW,
+      })
+    : 'null';
   const pageInfo = resolvePageSize(config.page);
 
   return `<!DOCTYPE html>
@@ -1313,15 +1364,15 @@ export function generatePage(config) {
 
     @page {
       size: ${pageInfo.cssSize};
-      margin: 0;
+      margin: ${pageInfo.mt}in ${pageInfo.mr}in ${pageInfo.mb}in ${pageInfo.ml}in;
     }
 
     @media print {
       body {
         background: white;
         padding: 0;
-        margin: 0;${printZoom ? `
-        zoom: ${printZoom};` : ''}
+        margin: 0;
+        min-width: 0 !important;
       }
 
       .scorecard {
@@ -1332,14 +1383,33 @@ export function generatePage(config) {
       .print-page {
         box-shadow: none;
         border-radius: 0;
-        padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
+        padding: 0;
         page-break-after: always;
         page-break-inside: avoid;
       }
 
       .print-page:last-child {
         page-break-after: auto;
+      }${printScale === null ? '' : `
+      .print-page {
+        position: relative;
+        width: ${Math.round(pageInfo.availW)}px;
+        height: ${Math.round(pageInfo.availH)}px;
+        overflow: hidden;
       }
+
+      .print-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: ${Math.round(fit.pageW)}px;
+        transform-origin: top left;
+        transform: scale(${printScale});
+      }
+
+      :root {${fit.vars.trim() ? `
+        ${fit.vars}` : ''}
+      }`}
 
       .half-inning {
         margin-bottom: 0;
@@ -1360,16 +1430,20 @@ export function generatePage(config) {
 
 <div class="scorecard">
 ${config.pages !== 'home' ? `  <div class="print-page">
- ${generateHalfInning(config, "away")}
+  <div class="print-card">
+    ${generateHalfInning(config, "away")}
     <div class="card-footer">
       ${escapeHtml(config.name)}
     </div>
+  </div>
   </div>` : ''}
 ${config.pages !== 'away' ? `  <div class="print-page">
- ${generateHalfInning(config, "home")}
+  <div class="print-card">
+    ${generateHalfInning(config, "home")}
     <div class="card-footer">
       ${escapeHtml(config.name)}
     </div>
+  </div>
   </div>` : ''}
 </div>
 
@@ -1393,6 +1467,106 @@ ${config.pages !== 'away' ? `  <div class="print-page">
     document.fonts.ready.then(pin);
   }
   window.addEventListener('load', pin);
+})();
+</script>
+
+<script>
+(function () {
+  var FIT = ${fitJson};
+  if (!FIT) return;
+
+  function runFit() {
+    if (!window.matchMedia || !window.matchMedia('print').matches) return;
+    var pages = Array.prototype.slice.call(document.querySelectorAll('.print-page'));
+    if (!pages.length) return;
+
+    var root = document.documentElement;
+    root.style.setProperty('--cell-size', FIT.baseCell + 'px');
+    root.style.setProperty('--row-height', FIT.baseRow + 'px');
+
+    var availW = FIT.availW;
+    var availH = FIT.availH;
+
+    function measure(cards, widthPx) {
+      var W = 0, H = 0;
+      cards.forEach(function (c) {
+        c.style.width = widthPx + 'px';
+        c.style.transform = 'none';
+        c.style.left = '0';
+        c.style.top = '0';
+      });
+      cards.forEach(function (c) {
+        W = Math.max(W, c.scrollWidth);
+        H = Math.max(H, c.scrollHeight);
+      });
+      return { W: Math.max(W, 1), H: Math.max(H, 1) };
+    }
+
+    var cards = [];
+    pages.forEach(function (p) {
+      var c = p.querySelector('.print-card');
+      if (c) cards.push(c);
+    });
+    if (!cards.length) return;
+
+    var base = measure(cards, FIT.baseW);
+    var scale = Math.min(availW / base.W, availH / base.H);
+    var W2 = base.W;
+    var H2 = base.H;
+
+    if (scale < 1 && availW / base.W <= availH / base.H && FIT.rows > 0) {
+      var newRow = FIT.baseRow + (availH / scale - base.H) / FIT.rows;
+      root.style.setProperty('--row-height', Math.round(newRow) + 'px');
+      var m = measure(cards, base.W);
+      W2 = m.W;
+      H2 = m.H;
+      scale = Math.min(availW / W2, availH / H2);
+    } else if (scale < 1 && FIT.innings > 0) {
+      var newCell = FIT.baseCell + (availW / scale - base.W) / FIT.innings;
+      root.style.setProperty('--cell-size', Math.round(newCell) + 'px');
+      W2 = FIT.baseW + (newCell - FIT.baseCell) * FIT.innings;
+      var m2 = measure(cards, W2);
+      W2 = m2.W;
+      H2 = m2.H;
+      scale = Math.min(availW / W2, availH / H2);
+    }
+
+    if (scale >= 1) scale = 1;
+    if (typeof scale === 'number' && !isFinite(scale)) scale = 1;
+
+    cards.forEach(function (c) {
+      var w3 = c.scrollWidth;
+      var h3 = c.scrollHeight;
+      var dw = Math.max(0, Math.round((availW - w3 * scale) / 2));
+      var dh = Math.max(0, Math.round((availH - h3 * scale) / 2));
+      c.style.width = Math.round(W2) + 'px';
+      c.style.left = dw + 'px';
+      c.style.top = dh + 'px';
+      c.style.transformOrigin = 'top left';
+      c.style.transform = 'scale(' + scale + ')';
+    });
+  }
+
+  function whenReady() {
+    var p = Promise.resolve();
+    if (document.fonts && document.fonts.ready) {
+      p = p.then(function () { return document.fonts.ready; });
+    }
+    return p.then(function () { runFit(); });
+  }
+
+  window.addEventListener('beforeprint', runFit);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(runFit);
+  }
+  window.addEventListener('load', whenReady);
+
+  window.__opencardPrint = function () {
+    return whenReady().then(function () {
+      window.focus();
+      window.print();
+    });
+  };
 })();
 </script>
 

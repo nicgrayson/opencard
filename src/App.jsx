@@ -19,7 +19,11 @@ export default function App() {
     win.document.close();
     win.onload = () => {
       win.focus();
-      win.print();
+      if (typeof win.__opencardPrint === 'function') {
+        win.__opencardPrint();
+      } else {
+        win.print();
+      }
     };
   }, [config]);
 

@@ -131,8 +131,10 @@ export function parseSide(side, tag, starterId, playerInfo) {
     if (pos === 'P') {
       const pg = stats.pitching || {}
       const info = playerInfo ? playerInfo.get(String(id).replace(/^ID/, '')) : null
+      const personId = String(id).replace(/^ID/, '')
       pitchers.push({
         id,
+        personId,
         name,
         num,
         'R/L': info && info.pitchHand && info.pitchHand.code ? info.pitchHand.code : '',
@@ -187,7 +189,11 @@ export function parseSide(side, tag, starterId, playerInfo) {
   // identify the starter: prefer the announced probable pitcher, then
   // fall back to marks `started` from game logs, then the first listed
   const byProbable = starterId
-    ? pitchers.find((q) => String(q.id) === String(starterId))
+    ? pitchers.find((q) => {
+        const qid = String(q.personId != null ? q.personId : q.id).replace(/^ID/, '')
+        const sid = String(starterId).replace(/^ID/, '')
+        return qid === sid
+      })
     : null
   const starter = byProbable || pitchers.find((q) => q.started) || pitchers[0] || null
   pitchers.sort((a, b) => Number(b === starter) - Number(a === starter))

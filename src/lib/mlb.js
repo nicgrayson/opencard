@@ -195,7 +195,18 @@ export function parseSide(side, tag, starterId, playerInfo) {
         return qid === sid
       })
     : null
-  const starter = byProbable || pitchers.find((q) => q.started) || pitchers[0] || null
+  let starter = byProbable || pitchers.find((q) => q.started) || pitchers[0] || null
+  // If no clear starter found by the usual markers, but exactly one pitcher
+  // appears in the boxscore's official pitcher list for the side, prefer them
+  const boxPitchers = side.pitchers || []
+  if (boxPitchers.length === 1 && pitchers.length) {
+    const bp = String(boxPitchers[0]).replace(/^ID/, '')
+    const match = pitchers.find((q) => {
+      const qid = String(q.personId != null ? q.personId : q.id).replace(/^ID/, '')
+      return qid === bp
+    })
+    if (match) starter = match
+  }
   pitchers.sort((a, b) => Number(b === starter) - Number(a === starter))
 
   lineup.sort((a, b) => a.battingOrder - b.battingOrder)
